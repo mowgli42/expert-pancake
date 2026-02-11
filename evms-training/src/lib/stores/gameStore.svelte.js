@@ -1,30 +1,29 @@
 /**
- * Game State Store - Tracks current scenario, turn, and EVMS metrics during play
- * Using .svelte.js for Svelte 5 runes support
+ * Game state store—current scenario, turn, EVMS metrics.
  */
 
 import { calculateEvmsMetrics } from '../evms/calculations.js';
 
 const STORAGE_KEY = 'evms-training-game';
 
-function loadGame() {
+function loadFromStorage() {
+	const raw = localStorage.getItem(STORAGE_KEY);
+	if (!raw) return null;
+	let parsed;
 	try {
-		const stored = localStorage.getItem(STORAGE_KEY);
-		if (stored) {
-			return JSON.parse(stored);
-		}
-	} catch (_) {}
-	return null;
+		parsed = JSON.parse(raw);
+	} catch {
+		return null;
+	}
+	return parsed && typeof parsed.scenarioId === 'number' ? parsed : null;
 }
 
-function saveGame(state) {
-	try {
-		if (state && state.scenarioId) {
-			localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
-		} else {
-			localStorage.removeItem(STORAGE_KEY);
-		}
-	} catch (_) {}
+function saveToStorage(state) {
+	if (state?.scenarioId != null) {
+		localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+	} else {
+		localStorage.removeItem(STORAGE_KEY);
+	}
 }
 
 export function createGameStore() {
@@ -37,6 +36,17 @@ export function createGameStore() {
 	let feedback = $state(null);
 	let choiceHistory = $state([]);
 
+	const saved = loadFromStorage();
+	if (saved) {
+		scenarioId = saved.scenarioId;
+		turnIndex = saved.turnIndex ?? 0;
+		pv = saved.pv ?? 0;
+		ev = saved.ev ?? 0;
+		ac = saved.ac ?? 0;
+		bac = saved.bac ?? 0;
+		choiceHistory = saved.choiceHistory ?? [];
+	}
+
 	function initScenario(scenario) {
 		scenarioId = scenario.id;
 		turnIndex = 0;
@@ -46,7 +56,7 @@ export function createGameStore() {
 		bac = scenario.bac;
 		feedback = null;
 		choiceHistory = [];
-		saveGame({ scenarioId, turnIndex, pv, ev, ac, bac, choiceHistory });
+		saveToStorage({ scenarioId, turnIndex, pv, ev, ac, bac, choiceHistory });
 	}
 
 	function applyChoice(choice) {
@@ -56,7 +66,7 @@ export function createGameStore() {
 		feedback = choice.feedback ?? null;
 		choiceHistory = [...choiceHistory, { text: choice.text, turnIndex }];
 		turnIndex += 1;
-		saveGame({ scenarioId, turnIndex, pv, ev, ac, bac, choiceHistory });
+		saveToStorage({ scenarioId, turnIndex, pv, ev, ac, bac, choiceHistory });
 	}
 
 	function resetGame() {
@@ -71,29 +81,7 @@ export function createGameStore() {
 		localStorage.removeItem(STORAGE_KEY);
 	}
 
-	function restoreGame(saved) {
-		if (saved) {
-			scenarioId = saved.scenarioId;
-			turnIndex = saved.turnIndex ?? 0;
-			pv = saved.pv ?? 0;
-			ev = saved.ev ?? 0;
-			ac = saved.ac ?? 0;
-			bac = saved.bac ?? 0;
-			choiceHistory = saved.choiceHistory ?? [];
-		}
-	}
-
-	// Restore on init
-	const saved = loadGame();
-	if (saved) {
-		restoreGame(saved);
-	}
-
-	const metrics = $derived(
-		bac > 0
-			? calculateEvmsMetrics({ pv, ev, ac, bac })
-			: null
-	);
+	const metrics = $derived(bac > 0 ? calculateEvmsMetrics({ pv, ev, ac, bac }) : null);
 
 	return {
 		get scenarioId() {
@@ -124,11 +112,11 @@ export function createGameStore() {
 			return metrics;
 		},
 		get isComplete() {
-			return scenarioId !== null && turnIndex > 0;
+			return scenarioId != null && turnIndex > 0;
 		},
 		initScenario,
 		applyChoice,
 		resetGame,
-		loadGame
+		loadGame: loadFromStorage
 	};
 }

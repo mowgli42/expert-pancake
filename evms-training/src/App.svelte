@@ -1,25 +1,21 @@
 <script>
-	import { scenarios } from './lib/scenarios/index.js';
-	import { createBeadsStore } from './lib/stores/beadsStore.svelte.js';
-	import { createGameStore } from './lib/stores/gameStore.svelte.js';
 	import BeadsProgress from './components/BeadsProgress.svelte';
 	import ScenarioCard from './components/ScenarioCard.svelte';
 	import ScenarioPlay from './components/ScenarioPlay.svelte';
+	import { scenarios } from './lib/scenarios/index.js';
+	import { createBeadsStore } from './lib/stores/beadsStore.svelte.js';
+	import { createGameStore } from './lib/stores/gameStore.svelte.js';
 
 	const beadsStore = createBeadsStore();
 	const gameStore = createGameStore();
-
 	let currentScenarioId = $state(null);
 
-	// Restore in-progress game on load (gameStore restores from localStorage in its constructor)
-	$effect(() => {
+	$effect(function restoreInProgressGame() {
 		const sid = gameStore.scenarioId;
-		if (sid && !currentScenarioId) {
-			const scenario = scenarios.find((s) => s.id === sid);
-			if (scenario && gameStore.turnIndex < scenario.turns.length) {
-				currentScenarioId = sid;
-			}
-		}
+		if (!sid || currentScenarioId) return;
+		const scenario = scenarios.find((s) => s.id === sid);
+		if (!scenario || gameStore.turnIndex >= scenario.turns.length) return;
+		currentScenarioId = sid;
 	});
 
 	function handleSelectScenario(scenario) {
@@ -29,6 +25,11 @@
 
 	function handleBack() {
 		currentScenarioId = null;
+	}
+
+	function handleResetProgress() {
+		beadsStore.resetProgress();
+		gameStore.resetGame();
 	}
 </script>
 
@@ -73,15 +74,7 @@
 					{/each}
 				</div>
 				{#if beadsStore.completedCount > 0}
-					<button
-						class="reset-btn"
-						onclick={() => {
-							beadsStore.resetProgress();
-							gameStore.resetGame();
-						}}
-					>
-						Reset Progress
-					</button>
+					<button class="reset-btn" onclick={handleResetProgress}>Reset Progress</button>
 				{/if}
 			</section>
 		{/if}

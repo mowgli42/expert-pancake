@@ -65,6 +65,8 @@ Returning to the list shows your **Progress** beads (e.g., 1/10 scenarios). Each
 - **Vite**
 - **IxDF** design principles (accessibility, clarity, user-centered)
 
+See `CLAUDE.md` for coding standards and `.cursor/rules/code-simplifier.md` for refactoring guidance.
+
 ## Development
 
 ```bash

@@ -3,19 +3,37 @@
 
 	let { metrics = null, bac = 0, compact = false } = $props();
 
-	const metricRows = [
-		{ key: 'pv', label: 'Planned Value', full: 'PV' },
-		{ key: 'ev', label: 'Earned Value', full: 'EV' },
-		{ key: 'ac', label: 'Actual Cost', full: 'AC' },
-		{ key: 'bac', label: 'Budget at Completion', full: 'BAC' },
-		{ key: 'eac', label: 'Estimate at Completion', full: 'EAC' },
-		{ key: 'etc', label: 'Estimate to Complete', full: 'ETC' },
-		{ key: 'sv', label: 'Schedule Variance', full: 'SV', isVariance: true },
-		{ key: 'cv', label: 'Cost Variance', full: 'CV', isVariance: true },
-		{ key: 'spi', label: 'Schedule Perf. Index', full: 'SPI', isIndex: true },
-		{ key: 'cpi', label: 'Cost Perf. Index', full: 'CPI', isIndex: true },
-		{ key: 'vac', label: 'Variance at Completion', full: 'VAC', isVariance: true }
+	const ALL_METRIC_ROWS = [
+		{ key: 'pv', full: 'PV' },
+		{ key: 'ev', full: 'EV' },
+		{ key: 'ac', full: 'AC' },
+		{ key: 'bac', full: 'BAC' },
+		{ key: 'eac', full: 'EAC' },
+		{ key: 'etc', full: 'ETC' },
+		{ key: 'sv', full: 'SV', isVariance: true },
+		{ key: 'cv', full: 'CV', isVariance: true },
+		{ key: 'spi', full: 'SPI', isIndex: true },
+		{ key: 'cpi', full: 'CPI', isIndex: true },
+		{ key: 'vac', full: 'VAC', isVariance: true }
 	];
+
+	const COMPACT_KEYS = ['pv', 'ev', 'ac', 'bac', 'sv', 'cv', 'spi', 'cpi'];
+
+	const metricRows = $derived(
+		compact ? ALL_METRIC_ROWS.filter((r) => COMPACT_KEYS.includes(r.key)) : ALL_METRIC_ROWS
+	);
+
+	function getIndicator(row, value) {
+		if (row.isIndex) return getPerformanceIndicator(value);
+		if (row.isVariance && value != null) return value >= 0 ? 'good' : 'bad';
+		return null;
+	}
+
+	function formatValue(row, value) {
+		if (value == null) return '—';
+		if (row.isIndex) return value.toFixed(2);
+		return formatCurrency(value);
+	}
 </script>
 
 <div class="dashboard" class:compact>
@@ -28,18 +46,11 @@
 
 	{#if metrics}
 		<div class="metrics-grid">
-			{#each metricRows.filter((r) => !compact || ['pv', 'ev', 'ac', 'bac', 'sv', 'cv', 'spi', 'cpi'].includes(r.key)) as row}
+			{#each metricRows as row}
 				{@const value = metrics[row.key]}
-				{@const indicator = row.isIndex ? getPerformanceIndicator(value) : row.isVariance && value != null ? (value >= 0 ? 'good' : 'bad') : null}
-				<div class="metric" data-indicator={indicator}>
+				<div class="metric" data-indicator={getIndicator(row, value)}>
 					<span class="label">{row.full}</span>
-					<span class="value">
-						{#if row.isIndex}
-							{value?.toFixed(2) ?? '—'}
-						{:else}
-							{value != null ? formatCurrency(value) : '—'}
-						{/if}
-					</span>
+					<span class="value">{formatValue(row, value)}</span>
 				</div>
 			{/each}
 		</div>

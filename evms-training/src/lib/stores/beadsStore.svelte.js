@@ -1,12 +1,11 @@
 /**
- * Beads Progress Store - Tracks completion across 10 EVMS scenarios
- * Persisted to localStorage for continuity
- * Using .svelte.js for Svelte 5 runes support
+ * Beads progress store—tracks completion across 10 scenarios.
+ * Persisted to localStorage.
  */
 
 const STORAGE_KEY = 'evms-training-beads';
 
-const defaultBeads = [
+const DEFAULT_BEADS = [
 	{ id: 1, name: 'Building a Fence', difficulty: 1, unlocked: true, completed: false, scenarioId: 1 },
 	{ id: 2, name: 'Kitchen Renovation', difficulty: 2, unlocked: false, completed: false, scenarioId: 2 },
 	{ id: 3, name: 'Software Feature Sprint', difficulty: 3, unlocked: false, completed: false, scenarioId: 3 },
@@ -20,19 +19,19 @@ const defaultBeads = [
 ];
 
 function loadFromStorage() {
+	const raw = localStorage.getItem(STORAGE_KEY);
+	if (!raw) return DEFAULT_BEADS;
+	let parsed;
 	try {
-		const stored = localStorage.getItem(STORAGE_KEY);
-		if (stored) {
-			return JSON.parse(stored);
-		}
-	} catch (_) {}
-	return defaultBeads;
+		parsed = JSON.parse(raw);
+	} catch {
+		return DEFAULT_BEADS;
+	}
+	return Array.isArray(parsed) ? parsed : DEFAULT_BEADS;
 }
 
 function saveToStorage(beads) {
-	try {
-		localStorage.setItem(STORAGE_KEY, JSON.stringify(beads));
-	} catch (_) {}
+	localStorage.setItem(STORAGE_KEY, JSON.stringify(beads));
 }
 
 export function createBeadsStore() {
@@ -40,27 +39,29 @@ export function createBeadsStore() {
 
 	function unlockNext() {
 		const next = beads.find((b) => !b.completed && !b.unlocked);
-		if (next) {
-			beads = beads.map((b) =>
-				b.id === next.id ? { ...b, unlocked: true } : b
-			);
-			saveToStorage(beads);
-			return true;
-		}
-		return false;
+		if (!next) return false;
+		beads = beads.map((b) => (b.id === next.id ? { ...b, unlocked: true } : b));
+		saveToStorage(beads);
+		return true;
 	}
 
 	function completeBead(scenarioId) {
-		beads = beads.map((b) =>
-			b.scenarioId === scenarioId ? { ...b, completed: true } : b
-		);
+		beads = beads.map((b) => (b.scenarioId === scenarioId ? { ...b, completed: true } : b));
 		unlockNext();
 		saveToStorage(beads);
 	}
 
 	function resetProgress() {
-		beads = structuredClone(defaultBeads);
+		beads = structuredClone(DEFAULT_BEADS);
 		saveToStorage(beads);
+	}
+
+	function isUnlocked(scenarioId) {
+		return beads.find((b) => b.scenarioId === scenarioId)?.unlocked ?? false;
+	}
+
+	function isCompleted(scenarioId) {
+		return beads.find((b) => b.scenarioId === scenarioId)?.completed ?? false;
 	}
 
 	return {
@@ -76,7 +77,7 @@ export function createBeadsStore() {
 		unlockNext,
 		completeBead,
 		resetProgress,
-		isUnlocked: (scenarioId) => beads.find((b) => b.scenarioId === scenarioId)?.unlocked ?? false,
-		isCompleted: (scenarioId) => beads.find((b) => b.scenarioId === scenarioId)?.completed ?? false
+		isUnlocked,
+		isCompleted
 	};
 }

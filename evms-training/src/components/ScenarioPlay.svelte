@@ -2,13 +2,7 @@
 	import { getScenario } from '../lib/scenarios/index.js';
 	import EvmsMetricsDashboard from './EvmsMetricsDashboard.svelte';
 
-	let {
-		scenarioId,
-		gameStore,
-		beadsStore,
-		onBack,
-		onComplete
-	} = $props();
+	let { scenarioId, gameStore, beadsStore, onBack } = $props();
 
 	const scenario = $derived(getScenario(scenarioId));
 	const turn = $derived(scenario?.turns[gameStore.turnIndex]);
