@@ -1,6 +1,7 @@
 /**
  * Beads Progress Store - Tracks completion across 10 EVMS scenarios
  * Persisted to localStorage for continuity
+ * Using .svelte.js for Svelte 5 runes support
  */
 
 const STORAGE_KEY = 'evms-training-beads';

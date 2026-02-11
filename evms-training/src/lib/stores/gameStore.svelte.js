@@ -1,5 +1,6 @@
 /**
  * Game State Store - Tracks current scenario, turn, and EVMS metrics during play
+ * Using .svelte.js for Svelte 5 runes support
  */
 
 import { calculateEvmsMetrics } from '../evms/calculations.js';

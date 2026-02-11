@@ -1,7 +1,7 @@
 <script>
 	import { scenarios } from './lib/scenarios/index.js';
-	import { createBeadsStore } from './lib/stores/beadsStore.js';
-	import { createGameStore } from './lib/stores/gameStore.js';
+	import { createBeadsStore } from './lib/stores/beadsStore.svelte.js';
+	import { createGameStore } from './lib/stores/gameStore.svelte.js';
 	import BeadsProgress from './components/BeadsProgress.svelte';
 	import ScenarioCard from './components/ScenarioCard.svelte';
 	import ScenarioPlay from './components/ScenarioPlay.svelte';

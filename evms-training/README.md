@@ -45,3 +45,12 @@ npm run build
 ```
 
 Output in `dist/` — deploy to any static host.
+
+## Testing
+
+Playwright tests verify gameplay displays and functions:
+
+```bash
+npm test
+# or: npx playwright test
+```

@@ -8,13 +8,14 @@
 </script>
 
 <button
-	class="card"
-	class:unlocked
-	class:completed
-	class:locked={!unlocked}
-	onclick={() => unlocked && onSelect?.()}
-	disabled={!unlocked}
-	aria-disabled={!unlocked}
+		class="card"
+		class:unlocked
+		class:completed
+		class:locked={!unlocked}
+		onclick={() => unlocked && onSelect?.()}
+		disabled={!unlocked}
+		aria-disabled={!unlocked}
+		aria-label="Scenario: {scenario.title} - {scenario.subtitle}"
 >
 	<div class="difficulty">Level {scenario.difficulty}</div>
 	<h4 class="title">{scenario.title}</h4>
