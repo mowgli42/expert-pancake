@@ -1,0 +1,88 @@
+{
+  "beads": [
+    {
+      "id": "scenario-1",
+      "name": "Building a Fence",
+      "status": "locked",
+      "difficulty": 1,
+      "checkpoints": ["turn-1", "turn-2", "turn-3", "turn-4", "turn-5"],
+      "completedCheckpoints": []
+    },
+    {
+      "id": "scenario-2",
+      "name": "Kitchen Renovation",
+      "status": "locked",
+      "difficulty": 2,
+      "checkpoints": ["turn-1", "turn-2", "turn-3", "turn-4", "turn-5", "turn-6"],
+      "completedCheckpoints": []
+    },
+    {
+      "id": "scenario-3",
+      "name": "Software Feature Sprint",
+      "status": "locked",
+      "difficulty": 3,
+      "checkpoints": ["turn-1", "turn-2", "turn-3", "turn-4"],
+      "completedCheckpoints": []
+    },
+    {
+      "id": "scenario-4",
+      "name": "Marketing Campaign Launch",
+      "status": "locked",
+      "difficulty": 4,
+      "checkpoints": ["turn-1", "turn-2", "turn-3", "turn-4", "turn-5", "turn-6", "turn-7"],
+      "completedCheckpoints": []
+    },
+    {
+      "id": "scenario-5",
+      "name": "Office Relocation",
+      "status": "locked",
+      "difficulty": 5,
+      "checkpoints": ["turn-1", "turn-2", "turn-3", "turn-4", "turn-5", "turn-6", "turn-7", "turn-8"],
+      "completedCheckpoints": []
+    },
+    {
+      "id": "scenario-6",
+      "name": "Manufacturing Line Setup",
+      "status": "locked",
+      "difficulty": 6,
+      "checkpoints": ["turn-1", "turn-2", "turn-3", "turn-4", "turn-5", "turn-6", "turn-7", "turn-8"],
+      "completedCheckpoints": []
+    },
+    {
+      "id": "scenario-7",
+      "name": "Hospital Wing Expansion",
+      "status": "locked",
+      "difficulty": 7,
+      "checkpoints": ["turn-1", "turn-2", "turn-3", "turn-4", "turn-5", "turn-6", "turn-7", "turn-8", "turn-9"],
+      "completedCheckpoints": []
+    },
+    {
+      "id": "scenario-8",
+      "name": "Bridge Rehabilitation",
+      "status": "locked",
+      "difficulty": 8,
+      "checkpoints": ["turn-1", "turn-2", "turn-3", "turn-4", "turn-5", "turn-6", "turn-7", "turn-8", "turn-9"],
+      "completedCheckpoints": []
+    },
+    {
+      "id": "scenario-9",
+      "name": "New Product Launch",
+      "status": "locked",
+      "difficulty": 9,
+      "checkpoints": ["turn-1", "turn-2", "turn-3", "turn-4", "turn-5", "turn-6", "turn-7", "turn-8", "turn-9", "turn-10"],
+      "completedCheckpoints": []
+    },
+    {
+      "id": "scenario-10",
+      "name": "Lunar Mission Program",
+      "status": "locked",
+      "difficulty": 10,
+      "checkpoints": ["turn-1", "turn-2", "turn-3", "turn-4", "turn-5", "turn-6", "turn-7", "turn-8", "turn-9", "turn-10", "turn-11"],
+      "completedCheckpoints": []
+    }
+  ],
+  "currentBead": null,
+  "currentCheckpoint": null,
+  "totalBeads": 10,
+  "completedBeads": 0
+}
