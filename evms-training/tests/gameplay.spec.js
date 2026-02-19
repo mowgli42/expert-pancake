@@ -150,6 +150,13 @@ test.describe('EVMS Training - Gameplay', () => {
 		await expect(kitchenCard).toBeEnabled();
 	});
 
+	test('advanced topics available from main page', async ({ page }) => {
+		await expect(page.getByRole('button', { name: /Advanced Topics: When EVMS/i })).toBeVisible();
+		await page.getByRole('button', { name: /Advanced Topics: When EVMS/i }).click();
+		await expect(page.getByRole('heading', { level: 2 })).toContainText('Advanced Topics');
+		await expect(page.getByText(/When EVMS May Not Be the Best Fit/)).toBeVisible();
+	});
+
 	test('can play scenario 2 after completing scenario 1', async ({ page }) => {
 		await page.getByRole('button', { name: /Scenario: Building a Fence/i }).click();
 		for (let i = 0; i < 5; i++) {

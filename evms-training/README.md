@@ -24,6 +24,7 @@ An interactive web application that trains users on **Earned Value Management Sy
 - **EVMS Metrics Tracked**: PV, EV, AC, BAC, EAC, ETC, SV, CV, SPI, CPI, VAC
 - **Choose Your Own Adventure**: Decision points affect project outcomes and metrics
 - **Progress Persistence**: Beads-style tracking with localStorage
+- **Advanced Topics**: 10 scenarios when EVMS isn't the best fit (LOE, agile, R&D, etc.) with reference links—recommended after completing the 10 core scenarios
 
 ## How to Play
 
@@ -56,6 +57,10 @@ When you've made all decisions for a scenario, you'll see the **Scenario Complet
 Returning to the list shows your **Progress** beads (e.g., 1/10 scenarios). Each completed scenario unlocks the next. Work through all 10—from a backyard fence to a lunar mission—to master EVMS through increasingly complex real-world situations.
 
 ![Progress and next scenario unlocked](docs/screenshots/05-progress-unlocked.png)
+
+### 6. Advanced Topics (When EVMS Isn't the Best Fit)
+
+After completing all 10 scenarios, explore **Advanced Topics**—10 scenarios where EVMS may not be the best approach (LOE/support, agile, R&D, maintenance, creative work, emergency response, consulting/T&M, startups, compliance, innovation labs). Each topic includes why EVMS fits poorly, better alternatives, and links to PMI, GAO, NDIA, and other references.
 
 ---
 

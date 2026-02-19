@@ -90,3 +90,18 @@ An interactive, self-contained web application that trains users on Earned Value
 - Each scenario = 1 bead
 - Each decision point = checkpoint
 - Completion = all 10 beads collected
+
+## Advanced Topics (Post-Completion)
+When EVMS May Not Be the Best Fit—10 scenarios with reference links:
+1. LOE & Support Work (help desk, on-call)
+2. Agile/Scrum Projects
+3. Research & Development
+4. Maintenance & Operations
+5. Creative & Design Work
+6. Emergency Response
+7. Consulting & T&M
+8. Start-up & Discovery
+9. Compliance & Regulatory
+10. Innovation Labs & Hackathons
+
+Available from main page; recommended after completing all 10 scenarios.

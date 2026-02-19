@@ -1,4 +1,5 @@
 <script>
+	import AdvancedTopics from './components/AdvancedTopics.svelte';
 	import BeadsProgress from './components/BeadsProgress.svelte';
 	import EvmsReference from './components/EvmsReference.svelte';
 	import ScenarioCard from './components/ScenarioCard.svelte';
@@ -11,6 +12,8 @@
 	const gameStore = createGameStore();
 	let currentScenarioId = $state(null);
 	let referenceOpen = $state(false);
+	let advancedTopicsView = $state(false);
+	const allComplete = $derived(beadsStore.completedCount === 10);
 
 	$effect(function restoreInProgressGame() {
 		const sid = gameStore.scenarioId;
@@ -69,8 +72,19 @@
 				beadsStore={beadsStore}
 				onBack={handleBack}
 			/>
+		{:else if advancedTopicsView}
+			<AdvancedTopics onBack={() => (advancedTopicsView = false)} />
 		{:else}
 			<section class="scenario-grid">
+				{#if allComplete}
+					<div class="recommended-banner">
+						<strong>You've completed all 10 scenarios!</strong>
+						<p>Explore when EVMS may not be the best fit—learn to choose the right tracking approach.</p>
+						<button class="advanced-cta" onclick={() => (advancedTopicsView = true)}>
+							Advanced Topics →
+						</button>
+					</div>
+				{/if}
 				<div class="section-header">
 					<h2>Choose Your Scenario</h2>
 					<p class="section-desc">
@@ -87,6 +101,18 @@
 							onSelect={() => handleSelectScenario(scenario)}
 						/>
 					{/each}
+				</div>
+				<div class="advanced-section">
+					<button class="advanced-btn" onclick={() => (advancedTopicsView = true)}>
+						Advanced Topics: When EVMS Isn't the Best Fit
+					</button>
+					<p class="advanced-hint">
+						{#if allComplete}
+							Recommended after completing all scenarios above.
+						{:else}
+							Available anytime. Best explored after completing the 10 scenarios.
+						{/if}
+					</p>
 				</div>
 				{#if beadsStore.completedCount > 0}
 					<button class="reset-btn" onclick={handleResetProgress}>Reset Progress</button>
@@ -185,10 +211,80 @@
 		max-width: 60ch;
 	}
 
+	.recommended-banner {
+		background: linear-gradient(135deg, var(--success-muted) 0%, rgba(5, 150, 105, 0.08) 100%);
+		border: 1px solid var(--success);
+		border-radius: var(--radius-lg);
+		padding: var(--space-4);
+		margin-bottom: var(--space-6);
+	}
+
+	.recommended-banner strong {
+		display: block;
+		color: var(--text-1);
+		font-size: var(--text-base);
+		margin-bottom: var(--space-1);
+	}
+
+	.recommended-banner p {
+		margin: 0 0 var(--space-3);
+		color: var(--text-2);
+		font-size: var(--text-sm);
+		line-height: 1.5;
+	}
+
+	.advanced-cta {
+		padding: var(--space-2) var(--space-4);
+		background: var(--success);
+		color: white;
+		border: none;
+		border-radius: var(--radius);
+		font-weight: 600;
+		font-size: var(--text-sm);
+		cursor: pointer;
+	}
+
+	.advanced-cta:hover {
+		opacity: 0.9;
+	}
+
 	.scenario-grid .cards {
 		display: grid;
 		grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
 		gap: var(--space-4);
+	}
+
+	.advanced-section {
+		margin-top: var(--space-6);
+		padding-top: var(--space-6);
+		border-top: 1px solid var(--border);
+	}
+
+	.advanced-btn {
+		display: block;
+		width: 100%;
+		max-width: 480px;
+		padding: var(--space-4);
+		background: var(--surface-2);
+		border: 2px solid var(--border);
+		border-radius: var(--radius-lg);
+		font-size: var(--text-base);
+		font-weight: 600;
+		color: var(--text-1);
+		text-align: left;
+		cursor: pointer;
+		transition: all 0.2s;
+	}
+
+	.advanced-btn:hover {
+		border-color: var(--accent);
+		background: var(--accent-muted);
+	}
+
+	.advanced-hint {
+		margin: var(--space-2) 0 0;
+		font-size: var(--text-sm);
+		color: var(--text-3);
 	}
 
 	.reset-btn {
