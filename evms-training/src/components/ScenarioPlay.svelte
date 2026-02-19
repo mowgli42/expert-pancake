@@ -1,8 +1,10 @@
 <script>
-	import { getScenario } from '../lib/scenarios/index.js';
+	import EvmsHelpToaster from './EvmsHelpToaster.svelte';
 	import EvmsMetricsDashboard from './EvmsMetricsDashboard.svelte';
+	import { getScenario } from '../lib/scenarios/index.js';
 
 	let { scenarioId, gameStore, beadsStore, onBack } = $props();
+	let helpOpen = $state(false);
 
 	const scenario = $derived(getScenario(scenarioId));
 	const turn = $derived(scenario?.turns[gameStore.turnIndex]);
@@ -39,6 +41,15 @@
 		<div class="play-content">
 			<aside class="metrics-sidebar">
 				<EvmsMetricsDashboard metrics={gameStore.metrics} bac={scenario.bac} />
+				<button
+					class="help-btn"
+					onclick={() => (helpOpen = true)}
+					aria-label="Show EVMS terms help"
+					title="Key EVMS terms"
+				>
+					? Terms
+				</button>
+				<EvmsHelpToaster open={helpOpen} onClose={() => (helpOpen = false)} />
 			</aside>
 
 			<main class="narrative-area">
@@ -129,6 +140,27 @@
 		grid-template-columns: 280px 1fr;
 		gap: var(--space-6);
 		align-items: start;
+	}
+
+	.metrics-sidebar {
+		display: flex;
+		flex-direction: column;
+		gap: var(--space-2);
+	}
+
+	.help-btn {
+		padding: var(--space-2);
+		background: var(--surface-2);
+		border: 1px solid var(--border);
+		border-radius: var(--radius);
+		color: var(--accent);
+		font-size: var(--text-sm);
+		font-weight: 600;
+		cursor: pointer;
+	}
+
+	.help-btn:hover {
+		background: var(--accent-muted);
 	}
 
 	@media (max-width: 768px) {

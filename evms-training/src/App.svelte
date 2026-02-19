@@ -1,5 +1,6 @@
 <script>
 	import BeadsProgress from './components/BeadsProgress.svelte';
+	import EvmsReference from './components/EvmsReference.svelte';
 	import ScenarioCard from './components/ScenarioCard.svelte';
 	import ScenarioPlay from './components/ScenarioPlay.svelte';
 	import { scenarios } from './lib/scenarios/index.js';
@@ -9,6 +10,7 @@
 	const beadsStore = createBeadsStore();
 	const gameStore = createGameStore();
 	let currentScenarioId = $state(null);
+	let referenceOpen = $state(false);
 
 	$effect(function restoreInProgressGame() {
 		const sid = gameStore.scenarioId;
@@ -33,11 +35,24 @@
 	}
 </script>
 
+<EvmsReference open={referenceOpen} onClose={() => (referenceOpen = false)} />
+
 <div class="app">
 	<header class="app-header">
 		<div class="header-content">
-			<h1>EVMS Training</h1>
-			<p class="tagline">Earned Value Management — Learn by doing</p>
+			<div class="header-top">
+				<div>
+					<h1>EVMS Training</h1>
+					<p class="tagline">Earned Value Management — Learn by doing</p>
+				</div>
+				<button
+					class="ref-btn"
+					onclick={() => (referenceOpen = true)}
+					aria-label="Open EVMS reference"
+				>
+					Reference
+				</button>
+			</div>
 			<BeadsProgress
 				beads={beadsStore.beads}
 				completedCount={beadsStore.completedCount}
@@ -104,6 +119,30 @@
 	.header-content {
 		max-width: var(--content-max);
 		margin: 0 auto;
+	}
+
+	.header-top {
+		display: flex;
+		align-items: flex-start;
+		justify-content: space-between;
+		gap: var(--space-4);
+		margin-bottom: var(--space-4);
+	}
+
+	.ref-btn {
+		flex-shrink: 0;
+		padding: var(--space-2) var(--space-4);
+		background: rgba(255, 255, 255, 0.2);
+		border: 1px solid rgba(255, 255, 255, 0.4);
+		border-radius: var(--radius);
+		color: white;
+		font-size: var(--text-sm);
+		font-weight: 600;
+		cursor: pointer;
+	}
+
+	.ref-btn:hover {
+		background: rgba(255, 255, 255, 0.3);
 	}
 
 	.app-header h1 {

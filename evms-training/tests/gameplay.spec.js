@@ -17,6 +17,7 @@ test.describe('EVMS Training - Gameplay', () => {
 		// Header
 		await expect(page.getByRole('heading', { level: 1 })).toContainText('EVMS Training');
 		await expect(page.getByText('Earned Value Management')).toBeVisible();
+		await expect(page.getByRole('button', { name: /Open EVMS reference/i })).toBeVisible();
 
 		// Section header
 		await expect(page.getByRole('heading', { level: 2 })).toContainText('Choose Your Scenario');
@@ -52,8 +53,9 @@ test.describe('EVMS Training - Gameplay', () => {
 		// Back button
 		await expect(page.getByRole('button', { name: /Back to scenarios/i })).toBeVisible();
 
-		// EVMS Metrics sidebar
+		// EVMS Metrics sidebar and help button
 		await expect(page.getByRole('heading', { name: /EVMS Metrics/i })).toBeVisible();
+		await expect(page.getByRole('button', { name: /Show EVMS terms help/i })).toBeVisible();
 	});
 
 	test('narrative and choice buttons display', async ({ page }) => {
