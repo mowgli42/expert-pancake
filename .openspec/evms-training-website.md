@@ -67,6 +67,11 @@ An interactive, self-contained web application that trains users on Earned Value
 - **BAC**: $500M | Duration: 36 months
 - **Real-world basis**: NASA EVM implementation (ANSI-748)
 
+## In-app learning (shipped UI)
+
+- **EVMS 101** plus a collapsible **Advanced topics** block live on the home screen (`evms-training/src/components/EvmsLearnPanel.svelte`) so learners see core definitions before choosing a scenario.
+- Detailed design notes below remain the product spec; they are not duplicated inside the static build.
+
 ## EVMS Metrics (Tracked)
 | Metric | Acronym | Description |
 |--------|---------|-------------|

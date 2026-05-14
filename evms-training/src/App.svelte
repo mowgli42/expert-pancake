@@ -1,5 +1,6 @@
 <script>
 	import BeadsProgress from './components/BeadsProgress.svelte';
+	import EvmsLearnPanel from './components/EvmsLearnPanel.svelte';
 	import ScenarioCard from './components/ScenarioCard.svelte';
 	import ScenarioPlay from './components/ScenarioPlay.svelte';
 	import { scenarios } from './lib/scenarios/index.js';
@@ -56,6 +57,7 @@
 			/>
 		{:else}
 			<section class="scenario-grid">
+				<EvmsLearnPanel />
 				<div class="section-header">
 					<h2>Choose Your Scenario</h2>
 					<p class="section-desc">
