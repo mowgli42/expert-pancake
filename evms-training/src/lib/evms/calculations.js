@@ -33,18 +33,60 @@ export function getPerformanceIndicator(value, type = 'index') {
 	return 'bad';
 }
 
+/**
+ * Illustrative "days of planned-pace budget": SV ÷ (BAC / planned duration).
+ * Not Earned Schedule time variance; use when explaining why SV is in dollars.
+ */
+export function svToApproxPlannedPaceDays(sv, bac, plannedDurationDays) {
+	if (
+		sv == null ||
+		!Number.isFinite(sv) ||
+		!plannedDurationDays ||
+		plannedDurationDays <= 0 ||
+		!bac ||
+		bac <= 0
+	) {
+		return null;
+	}
+	const dollarsPerPlannedDay = bac / plannedDurationDays;
+	if (!Number.isFinite(dollarsPerPlannedDay) || dollarsPerPlannedDay === 0) return null;
+	const d = sv / dollarsPerPlannedDay;
+	return Number.isFinite(d) ? d : null;
+}
+
 const SPI_ON = 0.98;
 const SPI_ON_HIGH = 1.02;
 const CPI_ON = 0.98;
 const CPI_ON_HIGH = 1.02;
 
+function roundApproxPaceDays(d) {
+	if (d == null || !Number.isFinite(d)) return null;
+	const abs = Math.abs(d);
+	if (abs < 0.05) return 0;
+	if (abs < 2) return Math.round(d * 10) / 10;
+	return Math.round(d);
+}
+
+function buildScheduleVarianceNarrative(spiStr, sv, bac, plannedDurationDays) {
+	let detail = `SPI is ${spiStr}. SV is ${formatCurrency(sv)} (EV − PV). In standard EVM, SV is expressed in budget dollars—the same units as EV and PV (e.g., ANSI-748)—because schedule performance compares *valued* planned versus earned work, not elapsed calendar days by itself.`;
+	const raw = svToApproxPlannedPaceDays(sv, bac, plannedDurationDays);
+	const paceDays = raw == null ? null : roundApproxPaceDays(raw);
+	if (paceDays != null && plannedDurationDays && Math.abs(paceDays) > 0) {
+		const dir = paceDays > 0 ? 'ahead' : 'behind';
+		detail += ` If BAC were spread evenly over this scenario’s ${plannedDurationDays}-day plan horizon, that SV is about ${Math.abs(paceDays)} day${Math.abs(paceDays) === 1 ? '' : 's'} of planned-pace budget ${dir}—a linear teaching analog only (Earned Schedule adds time-based schedule variance when PV is time-phased; SPI stays the clearest unitless schedule index).`;
+	}
+	return detail;
+}
+
 /**
  * Plain-language summary for the scenario complete screen (SPI/SV, CPI/CV, VAC/EAC).
  * @param {ReturnType<typeof calculateEvmsMetrics> | null | undefined} metrics
+ * @param {{ plannedDurationDays?: number }} [context]
  */
-export function summarizeScenarioComplete(metrics) {
+export function summarizeScenarioComplete(metrics, context) {
 	if (!metrics) return null;
 
+	const plannedDurationDays = context?.plannedDurationDays;
 	const { spi, cpi, sv, cv, vac, eac, bac } = metrics;
 	const spiStr = spi.toFixed(2);
 	const cpiStr = cpi.toFixed(2);
@@ -55,13 +97,13 @@ export function summarizeScenarioComplete(metrics) {
 	let scheduleDetail;
 	if (spi >= SPI_ON_HIGH) {
 		scheduleLede = 'You stayed ahead of the planned schedule.';
-		scheduleDetail = `SPI is ${spiStr}, so earned value outpaced planned value overall. Schedule variance (SV) is ${formatCurrency(sv)}.`;
+		scheduleDetail = buildScheduleVarianceNarrative(spiStr, sv, bac, plannedDurationDays);
 	} else if (spi >= SPI_ON) {
 		scheduleLede = 'You stayed about on schedule.';
-		scheduleDetail = `SPI is ${spiStr}, so earned value stayed close to planned value. SV is ${formatCurrency(sv)}.`;
+		scheduleDetail = buildScheduleVarianceNarrative(spiStr, sv, bac, plannedDurationDays);
 	} else {
 		scheduleLede = 'You fell behind the planned schedule.';
-		scheduleDetail = `SPI is ${spiStr}, so less earned value was recorded than planned at this point. SV is ${formatCurrency(sv)}.`;
+		scheduleDetail = buildScheduleVarianceNarrative(spiStr, sv, bac, plannedDurationDays);
 	}
 
 	let costWork;

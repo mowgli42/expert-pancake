@@ -26,6 +26,7 @@ export const scenarios = [
 		difficulty: 1,
 		bac: 2500,
 		duration: '5 days',
+		plannedDurationDays: 5,
 		basis: 'NAHB home improvement benchmarks',
 		turns: [
 			turn(
@@ -139,6 +140,7 @@ export const scenarios = [
 		difficulty: 2,
 		bac: 35000,
 		duration: '6 weeks',
+		plannedDurationDays: 42,
 		basis: 'Home renovation industry benchmarks',
 		turns: [
 			turn(
@@ -272,6 +274,7 @@ export const scenarios = [
 		difficulty: 3,
 		bac: 40000,
 		duration: '2 weeks',
+		plannedDurationDays: 14,
 		basis: 'CHAOS Report, Agile EVM adaptations',
 		turns: [
 			turn(
@@ -365,6 +368,7 @@ export const scenarios = [
 		difficulty: 4,
 		bac: 150000,
 		duration: '8 weeks',
+		plannedDurationDays: 56,
 		basis: 'PMI marketing project studies',
 		turns: [
 			turn('t1', 'Week 1: Creative brief approved. Agency proposes 3 concepts. Pick 1 or run A/B?', [
@@ -406,6 +410,7 @@ export const scenarios = [
 		difficulty: 5,
 		bac: 500000,
 		duration: '12 weeks',
+		plannedDurationDays: 84,
 		basis: 'Facility management case studies',
 		turns: [
 			turn('t1', 'Week 1-2: Floor plan finalized. Building has asbestos in ceiling. Abatement adds $45K, 2 weeks.', [
@@ -447,6 +452,7 @@ export const scenarios = [
 		difficulty: 6,
 		bac: 2000000,
 		duration: '6 months',
+		plannedDurationDays: 183,
 		basis: 'Industrial project management research',
 		turns: [
 			turn('t1', 'Month 1: Equipment procurement. Lead time extended 6 weeks. Air freight for +$120K?', [
@@ -484,6 +490,7 @@ export const scenarios = [
 		difficulty: 7,
 		bac: 15000000,
 		duration: '18 months',
+		plannedDurationDays: 548,
 		basis: 'Healthcare construction AHA benchmarks',
 		turns: [
 			turn('t1', 'Month 1-2: Design phase. Joint Commission requires additional egress. Redesign $400K.', [
@@ -525,6 +532,7 @@ export const scenarios = [
 		difficulty: 8,
 		bac: 25000000,
 		duration: '24 months',
+		plannedDurationDays: 730,
 		basis: 'DOT/FHWA project data',
 		turns: [
 			turn('t1', 'Month 1-3: Deck demolition. Hidden deck deterioration - 40% more removal. +$800K.', [
@@ -566,6 +574,7 @@ export const scenarios = [
 		difficulty: 9,
 		bac: 5000000,
 		duration: '12 months',
+		plannedDurationDays: 365,
 		basis: 'PDMA new product development',
 		turns: [
 			turn('t1', 'Month 1-2: R&D prototype. Material sourcing - single supplier for key component. Dual source +$180K?', [
@@ -611,6 +620,7 @@ export const scenarios = [
 		difficulty: 10,
 		bac: 500000000,
 		duration: '36 months',
+		plannedDurationDays: 1095,
 		basis: 'NASA EVM implementation ANSI-748',
 		turns: [
 			turn('t1', 'Month 1-3: PDR (Preliminary Design Review). Mass margin violated. Design iteration or material swap?', [

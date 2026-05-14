@@ -15,7 +15,11 @@
 	const isLastTurn = $derived(scenario && gameStore.turnIndex >= scenario.turns.length);
 
 	const completeSummary = $derived(
-		isLastTurn && gameStore.metrics ? summarizeScenarioComplete(gameStore.metrics) : null
+		isLastTurn && gameStore.metrics
+			? summarizeScenarioComplete(gameStore.metrics, {
+					plannedDurationDays: scenario.plannedDurationDays
+				})
+			: null
 	);
 
 	const scheduleSummaryIndicator = $derived(
