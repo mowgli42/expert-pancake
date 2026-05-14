@@ -1,0 +1,6 @@
+{
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "installCommand": "npm ci --prefix evms-training",
+  "buildCommand": "npm run build --prefix evms-training",
+  "outputDirectory": "evms-training/dist"
+}
