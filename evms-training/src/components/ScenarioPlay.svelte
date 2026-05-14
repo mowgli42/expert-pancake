@@ -1,4 +1,5 @@
 <script>
+	import { getPerformanceIndicator, summarizeScenarioComplete } from '../lib/evms/calculations.js';
 	import { getScenario } from '../lib/scenarios/index.js';
 	import EvmsMetricsDashboard from './EvmsMetricsDashboard.svelte';
 
@@ -12,6 +13,24 @@
 	const scenario = $derived(getScenario(scenarioId));
 	const turn = $derived(scenario?.turns[gameStore.turnIndex]);
 	const isLastTurn = $derived(scenario && gameStore.turnIndex >= scenario.turns.length);
+
+	const completeSummary = $derived(
+		isLastTurn && gameStore.metrics ? summarizeScenarioComplete(gameStore.metrics) : null
+	);
+
+	const scheduleSummaryIndicator = $derived(
+		gameStore.metrics ? getPerformanceIndicator(gameStore.metrics.spi, 'index') : null
+	);
+
+	const budgetSummaryIndicator = $derived.by(function budgetSummaryIndicatorBody() {
+		const m = gameStore.metrics;
+		if (!m) return null;
+		const c = getPerformanceIndicator(m.cpi, 'index');
+		const v = getPerformanceIndicator(m.vac, 'variance');
+		if (c === 'bad' || v === 'bad') return 'bad';
+		if (c === 'warning' || v === 'warning') return 'warning';
+		return 'good';
+	});
 
 	function clearRevealTimer() {
 		if (revealChoicesTimeoutId !== undefined) {
@@ -76,7 +95,13 @@
 			</button>
 			<div class="header-info">
 				<h2>{scenario.title}</h2>
-				<p class="turn-progress">Turn {gameStore.turnIndex + 1} of {scenario.turns.length}</p>
+				<p class="turn-progress">
+					{#if isLastTurn}
+						All turns complete
+					{:else}
+						Turn {gameStore.turnIndex + 1} of {scenario.turns.length}
+					{/if}
+				</p>
 			</div>
 		</header>
 
@@ -90,7 +115,26 @@
 					<div class="scenario-complete">
 						<div class="complete-icon">✓</div>
 						<h3>Scenario Complete!</h3>
-						<p>You've finished "{scenario.title}". Review your final EVMS metrics above.</p>
+						<p class="complete-intro">
+							You've finished "{scenario.title}". Review your final EVMS metrics in the panel on the left.
+						</p>
+						{#if completeSummary}
+							<section class="complete-summary" aria-labelledby="complete-summary-title">
+								<h4 id="complete-summary-title">How you did</h4>
+								<div class="summary-columns">
+									<article class="summary-card" data-indicator={scheduleSummaryIndicator}>
+										<h5>Schedule</h5>
+										<p class="summary-lede">{completeSummary.scheduleLede}</p>
+										<p class="summary-detail">{completeSummary.scheduleDetail}</p>
+									</article>
+									<article class="summary-card" data-indicator={budgetSummaryIndicator}>
+										<h5>Budget &amp; forecast</h5>
+										<p class="summary-detail">{completeSummary.costWork}</p>
+										<p class="summary-detail">{completeSummary.forecast}</p>
+									</article>
+								</div>
+							</section>
+						{/if}
 						<button class="primary-btn" onclick={handleBack}>Return to Scenarios</button>
 					</div>
 				{:else if turn}
@@ -308,9 +352,89 @@
 		color: var(--text-1);
 	}
 
-	.scenario-complete p {
-		margin: 0 0 var(--space-4);
+	.complete-intro {
+		margin: 0 auto var(--space-5);
+		max-width: 52ch;
 		color: var(--text-2);
+		font-size: var(--text-base);
+		line-height: 1.5;
+	}
+
+	.complete-summary {
+		text-align: left;
+		margin: 0 0 var(--space-6);
+		padding: var(--space-5);
+		background: var(--surface-1);
+		border-radius: var(--radius-lg);
+		border: 1px solid var(--border);
+	}
+
+	.complete-summary h4 {
+		margin: 0 0 var(--space-4);
+		font-size: var(--text-lg);
+		font-weight: 700;
+		color: var(--text-1);
+		text-align: center;
+	}
+
+	.summary-columns {
+		display: grid;
+		grid-template-columns: 1fr 1fr;
+		gap: var(--space-4);
+	}
+
+	@media (max-width: 700px) {
+		.summary-columns {
+			grid-template-columns: 1fr;
+		}
+	}
+
+	.summary-card {
+		padding: var(--space-4);
+		background: var(--surface-2);
+		border-radius: var(--radius);
+		border-left: 4px solid var(--border);
+		transition: border-color 0.2s;
+	}
+
+	.summary-card[data-indicator='good'] {
+		border-left-color: var(--success);
+	}
+
+	.summary-card[data-indicator='warning'] {
+		border-left-color: var(--warning);
+	}
+
+	.summary-card[data-indicator='bad'] {
+		border-left-color: var(--danger);
+	}
+
+	.summary-card h5 {
+		margin: 0 0 var(--space-3);
+		font-size: var(--text-xs);
+		font-weight: 600;
+		text-transform: uppercase;
+		letter-spacing: 0.05em;
+		color: var(--text-2);
+	}
+
+	.summary-lede {
+		margin: 0 0 var(--space-2);
+		font-size: var(--text-base);
+		font-weight: 600;
+		line-height: 1.45;
+		color: var(--text-1);
+	}
+
+	.summary-detail {
+		margin: 0 0 var(--space-2);
+		font-size: var(--text-sm);
+		line-height: 1.55;
+		color: var(--text-2);
+	}
+
+	.summary-detail:last-child {
+		margin-bottom: 0;
 	}
 
 	.primary-btn {

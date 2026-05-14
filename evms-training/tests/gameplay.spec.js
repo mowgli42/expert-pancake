@@ -126,6 +126,9 @@ test.describe('EVMS Training - Gameplay', () => {
 		// Should show scenario complete
 		await expect(page.getByText('Scenario Complete!')).toBeVisible();
 		await expect(page.getByText(/You've finished/)).toBeVisible();
+		await expect(page.getByRole('heading', { name: /How you did/i })).toBeVisible();
+		await expect(page.getByRole('heading', { name: /^Schedule$/i })).toBeVisible();
+		await expect(page.getByRole('heading', { name: /Budget & forecast/i })).toBeVisible();
 		await expect(page.getByRole('button', { name: /Return to Scenarios/i })).toBeVisible();
 	});
 
