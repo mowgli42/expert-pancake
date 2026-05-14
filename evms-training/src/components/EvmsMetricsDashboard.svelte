@@ -10,11 +10,26 @@
 		{ key: 'bac', full: 'BAC' },
 		{ key: 'eac', full: 'EAC' },
 		{ key: 'etc', full: 'ETC' },
-		{ key: 'sv', full: 'SV', isVariance: true },
-		{ key: 'cv', full: 'CV', isVariance: true },
-		{ key: 'spi', full: 'SPI', isIndex: true },
-		{ key: 'cpi', full: 'CPI', isIndex: true },
-		{ key: 'vac', full: 'VAC', isVariance: true }
+		{
+			key: 'sv',
+			full: 'SV ($)',
+			isVariance: true,
+			help: 'SV = EV − PV in budget dollars (ANSI-748). SPI is the unitless schedule index (EV ÷ PV).'
+		},
+		{
+			key: 'cv',
+			full: 'CV ($)',
+			isVariance: true,
+			help: 'CV = EV − AC in budget dollars (cost variance for work performed).'
+		},
+		{ key: 'spi', full: 'SPI', isIndex: true, help: 'Schedule performance index: EV divided by PV.' },
+		{ key: 'cpi', full: 'CPI', isIndex: true, help: 'Cost performance index: EV divided by AC.' },
+		{
+			key: 'vac',
+			full: 'VAC',
+			isVariance: true,
+			help: 'Variance at completion: BAC minus EAC (forecast budget surplus or shortfall).'
+		}
 	];
 
 	const COMPACT_KEYS = ['pv', 'ev', 'ac', 'bac', 'sv', 'cv', 'spi', 'cpi'];
@@ -48,7 +63,7 @@
 		<div class="metrics-grid">
 			{#each metricRows as row}
 				{@const value = metrics[row.key]}
-				<div class="metric" data-indicator={getIndicator(row, value)}>
+				<div class="metric" data-indicator={getIndicator(row, value)} title={row.help || undefined}>
 					<span class="label">{row.full}</span>
 					<span class="value">{formatValue(row, value)}</span>
 				</div>
