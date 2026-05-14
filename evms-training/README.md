@@ -9,6 +9,8 @@ An interactive web application that trains users on **Earned Value Management Sy
 
 ## Features
 
+- **EVMS 101 + Advanced topics**: On the home screen, read core PV/EV/AC definitions and open “Advanced topics” for forecasts, Earned Schedule context, and where the full spec lives.
+
 - **10 Real-World Scenarios** (easy → complex):
   1. Building a Fence ($2.5K, 5 days)
   2. Kitchen Renovation ($35K, 6 weeks)

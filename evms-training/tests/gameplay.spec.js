@@ -18,6 +18,9 @@ test.describe('EVMS Training - Gameplay', () => {
 		await expect(page.getByRole('heading', { level: 1 })).toContainText('EVMS Training');
 		await expect(page.getByText('Earned Value Management')).toBeVisible();
 
+		await expect(page.getByRole('heading', { name: /EVMS 101/i })).toBeVisible();
+		await expect(page.getByText(/Advanced topics/i)).toBeVisible();
+
 		// Section header
 		await expect(page.getByRole('heading', { level: 2 })).toContainText('Choose Your Scenario');
 		await expect(page.getByText(/backyard fence to a lunar mission/)).toBeVisible();
