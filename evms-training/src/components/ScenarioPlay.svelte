@@ -2,11 +2,35 @@
 	import { getScenario } from '../lib/scenarios/index.js';
 	import EvmsMetricsDashboard from './EvmsMetricsDashboard.svelte';
 
+	const CHOICE_REVEAL_DELAY_MS = 400;
+
 	let { scenarioId, gameStore, beadsStore, onBack } = $props();
+
+	let choicesRevealReady = $state(true);
+	let revealChoicesTimeoutId = undefined;
 
 	const scenario = $derived(getScenario(scenarioId));
 	const turn = $derived(scenario?.turns[gameStore.turnIndex]);
 	const isLastTurn = $derived(scenario && gameStore.turnIndex >= scenario.turns.length);
+
+	function clearRevealTimer() {
+		if (revealChoicesTimeoutId !== undefined) {
+			clearTimeout(revealChoicesTimeoutId);
+			revealChoicesTimeoutId = undefined;
+		}
+	}
+
+	function scheduleChoicesReveal() {
+		choicesRevealReady = false;
+		clearRevealTimer();
+		revealChoicesTimeoutId = setTimeout(function revealChoices() {
+			revealChoicesTimeoutId = undefined;
+			choicesRevealReady = true;
+			if (typeof document !== 'undefined' && document.activeElement instanceof HTMLElement) {
+				document.activeElement.blur();
+			}
+		}, CHOICE_REVEAL_DELAY_MS);
+	}
 
 	function handleChoice(choice) {
 		gameStore.selectChoice(choice);
@@ -16,14 +40,30 @@
 		const wasLastTurn = gameStore.turnIndex >= scenario.turns.length - 1;
 		gameStore.advanceAfterFeedback();
 		if (wasLastTurn) {
+			clearRevealTimer();
+			choicesRevealReady = true;
 			beadsStore.completeBead(scenarioId);
+			return;
 		}
+		scheduleChoicesReveal();
 	}
 
 	function handleBack() {
+		clearRevealTimer();
+		choicesRevealReady = true;
 		gameStore.resetGame();
 		onBack?.();
 	}
+
+	$effect(function scenarioChoicesRevealLifecycle() {
+		scenarioId;
+		choicesRevealReady = true;
+		clearRevealTimer();
+
+		return function cleanup() {
+			clearRevealTimer();
+		};
+	});
 </script>
 
 {#if scenario}
@@ -71,7 +111,7 @@
 							>
 								Next
 							</button>
-						{:else}
+						{:else if choicesRevealReady}
 							<div class="choices">
 								{#each turn.choices as choice}
 									<button
@@ -82,6 +122,10 @@
 										{choice.text}
 									</button>
 								{/each}
+							</div>
+						{:else}
+							<div class="choices-pending" aria-live="polite">
+								<span class="choices-pending-text">Loading next decision…</span>
 							</div>
 						{/if}
 					</div>
@@ -202,6 +246,21 @@
 	.choice-btn:hover {
 		border-color: var(--accent);
 		background: var(--accent-muted);
+	}
+
+	.choices-pending {
+		display: flex;
+		align-items: center;
+		min-height: 3.25rem;
+		padding: var(--space-3) var(--space-4);
+		border-radius: var(--radius);
+		border: 2px dashed var(--border);
+		background: var(--surface-1);
+	}
+
+	.choices-pending-text {
+		font-size: var(--text-sm);
+		color: var(--text-2);
 	}
 
 	.next-btn {
