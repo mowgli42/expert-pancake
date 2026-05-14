@@ -69,20 +69,19 @@ test.describe('EVMS Training - Gameplay', () => {
 		await expect(page.getByRole('button', { name: /Rush through post setting/i })).toBeVisible();
 	});
 
-	test('clicking choice advances to next turn and shows feedback', async ({ page }) => {
+	test('after choice, outcome and Next appear; Next advances turn', async ({ page }) => {
 		await page.getByRole('button', { name: /Scenario: Building a Fence/i }).click();
 
-		// Click first choice
 		await page.getByRole('button', { name: /Set posts as planned/i }).click();
 
-		// Should show feedback
-		await expect(page.getByText(/Result:/)).toBeVisible();
+		await expect(page.getByText(/Outcome:/)).toBeVisible();
 		await expect(page.getByText(/On track!/)).toBeVisible();
+		await expect(page.getByText(/Turn 1 of 5/)).toBeVisible();
+		await expect(page.getByText(/Day 2:/)).not.toBeVisible();
 
-		// Turn should advance
+		await page.getByRole('button', { name: /Continue to next decision|Next/i }).click();
+
 		await expect(page.getByText(/Turn 2 of 5/)).toBeVisible();
-
-		// New narrative
 		await expect(page.getByText(/Day 2:/)).toBeVisible();
 	});
 
@@ -92,7 +91,7 @@ test.describe('EVMS Training - Gameplay', () => {
 		// Initially metrics may show $0 or values after first render
 		await expect(page.getByText('EVMS Metrics')).toBeVisible();
 
-		// Make a choice
+		// Make a choice (metrics update immediately)
 		await page.getByRole('button', { name: /Set posts as planned/i }).click();
 
 		// Metrics should show currency values (PV, EV, AC)
@@ -113,11 +112,15 @@ test.describe('EVMS Training - Gameplay', () => {
 	test('completing scenario 1 shows completion screen', async ({ page }) => {
 		await page.getByRole('button', { name: /Scenario: Building a Fence/i }).click();
 
-		// Complete all 5 turns
+		// Complete all 5 turns (choice then Next each turn)
 		for (let i = 0; i < 5; i++) {
-			// Click first available choice (usually the safer option)
-			const choiceBtn = page.getByRole('button', { name: /Set posts as planned|Continue with rails|Work in light rain|Double down|Use standard stain/i }).first();
+			const choiceBtn = page
+				.getByRole('button', {
+					name: /Set posts as planned|Continue with rails|Work in light rain|Double down|Use standard stain/i
+				})
+				.first();
 			await choiceBtn.click();
+			await page.getByRole('button', { name: /Continue to next decision|Next/i }).click();
 		}
 
 		// Should show scenario complete
@@ -129,11 +132,10 @@ test.describe('EVMS Training - Gameplay', () => {
 	test('completed scenario unlocks next and updates beads', async ({ page }) => {
 		await page.getByRole('button', { name: /Scenario: Building a Fence/i }).click();
 
-		// Complete scenario 1 - 5 turns
+		// Complete scenario 1 - 5 turns (choice + Next each)
 		for (let i = 0; i < 5; i++) {
-			const choiceBtns = page.locator('.choice-btn');
-			await choiceBtns.first().click();
-			// Wait for next turn or completion
+			await page.locator('.choice-btn').first().click();
+			await page.getByRole('button', { name: /Continue to next decision|Next/i }).click();
 			await page.waitForTimeout(300);
 		}
 
@@ -152,6 +154,7 @@ test.describe('EVMS Training - Gameplay', () => {
 		await page.getByRole('button', { name: /Scenario: Building a Fence/i }).click();
 		for (let i = 0; i < 5; i++) {
 			await page.locator('.choice-btn').first().click();
+			await page.getByRole('button', { name: /Continue to next decision|Next/i }).click();
 			await page.waitForTimeout(200);
 		}
 		await page.getByRole('button', { name: /Return to Scenarios/i }).click();

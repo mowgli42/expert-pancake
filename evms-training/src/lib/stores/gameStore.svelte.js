@@ -34,6 +34,7 @@ export function createGameStore() {
 	let ac = $state(0);
 	let bac = $state(0);
 	let feedback = $state(null);
+	let awaitingAdvance = $state(false);
 	let choiceHistory = $state([]);
 
 	const saved = loadFromStorage();
@@ -44,7 +45,23 @@ export function createGameStore() {
 		ev = saved.ev ?? 0;
 		ac = saved.ac ?? 0;
 		bac = saved.bac ?? 0;
+		feedback = saved.feedback ?? null;
+		awaitingAdvance = saved.awaitingAdvance ?? false;
 		choiceHistory = saved.choiceHistory ?? [];
+	}
+
+	function persist() {
+		saveToStorage({
+			scenarioId,
+			turnIndex,
+			pv,
+			ev,
+			ac,
+			bac,
+			feedback,
+			awaitingAdvance,
+			choiceHistory
+		});
 	}
 
 	function initScenario(scenario) {
@@ -55,18 +72,28 @@ export function createGameStore() {
 		ac = 0;
 		bac = scenario.bac;
 		feedback = null;
+		awaitingAdvance = false;
 		choiceHistory = [];
-		saveToStorage({ scenarioId, turnIndex, pv, ev, ac, bac, choiceHistory });
+		persist();
 	}
 
-	function applyChoice(choice) {
+	function selectChoice(choice) {
+		if (awaitingAdvance) return;
 		pv += choice.pvDelta ?? 0;
 		ev += choice.evDelta ?? 0;
 		ac += choice.acDelta ?? 0;
 		feedback = choice.feedback ?? null;
 		choiceHistory = [...choiceHistory, { text: choice.text, turnIndex }];
+		awaitingAdvance = true;
+		persist();
+	}
+
+	function advanceAfterFeedback() {
+		if (!awaitingAdvance) return;
+		feedback = null;
+		awaitingAdvance = false;
 		turnIndex += 1;
-		saveToStorage({ scenarioId, turnIndex, pv, ev, ac, bac, choiceHistory });
+		persist();
 	}
 
 	function resetGame() {
@@ -77,6 +104,7 @@ export function createGameStore() {
 		ac = 0;
 		bac = 0;
 		feedback = null;
+		awaitingAdvance = false;
 		choiceHistory = [];
 		localStorage.removeItem(STORAGE_KEY);
 	}
@@ -105,6 +133,9 @@ export function createGameStore() {
 		get feedback() {
 			return feedback;
 		},
+		get awaitingAdvance() {
+			return awaitingAdvance;
+		},
 		get choiceHistory() {
 			return choiceHistory;
 		},
@@ -115,7 +146,8 @@ export function createGameStore() {
 			return scenarioId != null && turnIndex > 0;
 		},
 		initScenario,
-		applyChoice,
+		selectChoice,
+		advanceAfterFeedback,
 		resetGame,
 		loadGame: loadFromStorage
 	};

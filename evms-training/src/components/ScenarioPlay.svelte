@@ -2,24 +2,68 @@
 	import { getScenario } from '../lib/scenarios/index.js';
 	import EvmsMetricsDashboard from './EvmsMetricsDashboard.svelte';
 
+	const CHOICE_REVEAL_DELAY_MS = 400;
+
 	let { scenarioId, gameStore, beadsStore, onBack } = $props();
+
+	let choicesRevealReady = $state(true);
+	let revealChoicesTimeoutId = undefined;
 
 	const scenario = $derived(getScenario(scenarioId));
 	const turn = $derived(scenario?.turns[gameStore.turnIndex]);
 	const isLastTurn = $derived(scenario && gameStore.turnIndex >= scenario.turns.length);
 
-	function handleChoice(choice) {
-		const wasLastTurn = gameStore.turnIndex >= scenario.turns.length - 1;
-		gameStore.applyChoice(choice);
-		if (wasLastTurn) {
-			beadsStore.completeBead(scenarioId);
+	function clearRevealTimer() {
+		if (revealChoicesTimeoutId !== undefined) {
+			clearTimeout(revealChoicesTimeoutId);
+			revealChoicesTimeoutId = undefined;
 		}
 	}
 
+	function scheduleChoicesReveal() {
+		choicesRevealReady = false;
+		clearRevealTimer();
+		revealChoicesTimeoutId = setTimeout(function revealChoices() {
+			revealChoicesTimeoutId = undefined;
+			choicesRevealReady = true;
+			if (typeof document !== 'undefined' && document.activeElement instanceof HTMLElement) {
+				document.activeElement.blur();
+			}
+		}, CHOICE_REVEAL_DELAY_MS);
+	}
+
+	function handleChoice(choice) {
+		gameStore.selectChoice(choice);
+	}
+
+	function handleNext() {
+		const wasLastTurn = gameStore.turnIndex >= scenario.turns.length - 1;
+		gameStore.advanceAfterFeedback();
+		if (wasLastTurn) {
+			clearRevealTimer();
+			choicesRevealReady = true;
+			beadsStore.completeBead(scenarioId);
+			return;
+		}
+		scheduleChoicesReveal();
+	}
+
 	function handleBack() {
+		clearRevealTimer();
+		choicesRevealReady = true;
 		gameStore.resetGame();
 		onBack?.();
 	}
+
+	$effect(function scenarioChoicesRevealLifecycle() {
+		scenarioId;
+		choicesRevealReady = true;
+		clearRevealTimer();
+
+		return function cleanup() {
+			clearRevealTimer();
+		};
+	});
 </script>
 
 {#if scenario}
@@ -53,22 +97,37 @@
 					<div class="narrative-card">
 						<p class="narrative">{turn.narrative}</p>
 
-						{#if gameStore.feedback}
-							<div class="feedback">
-								<strong>Result:</strong> {gameStore.feedback}
+						{#if gameStore.awaitingAdvance}
+							{#if gameStore.feedback}
+								<div class="feedback">
+									<strong>Outcome:</strong> {gameStore.feedback}
+								</div>
+							{/if}
+							<button
+								type="button"
+								class="next-btn"
+								onclick={handleNext}
+								aria-label="Continue to next decision"
+							>
+								Next
+							</button>
+						{:else if choicesRevealReady}
+							<div class="choices">
+								{#each turn.choices as choice}
+									<button
+										type="button"
+										class="choice-btn"
+										onclick={() => handleChoice(choice)}
+									>
+										{choice.text}
+									</button>
+								{/each}
+							</div>
+						{:else}
+							<div class="choices-pending" aria-live="polite">
+								<span class="choices-pending-text">Loading next decision…</span>
 							</div>
 						{/if}
-
-						<div class="choices">
-							{#each turn.choices as choice}
-								<button
-									class="choice-btn"
-									onclick={() => handleChoice(choice)}
-								>
-									{choice.text}
-								</button>
-							{/each}
-						</div>
 					</div>
 				{/if}
 			</main>
@@ -187,6 +246,38 @@
 	.choice-btn:hover {
 		border-color: var(--accent);
 		background: var(--accent-muted);
+	}
+
+	.choices-pending {
+		display: flex;
+		align-items: center;
+		min-height: 3.25rem;
+		padding: var(--space-3) var(--space-4);
+		border-radius: var(--radius);
+		border: 2px dashed var(--border);
+		background: var(--surface-1);
+	}
+
+	.choices-pending-text {
+		font-size: var(--text-sm);
+		color: var(--text-2);
+	}
+
+	.next-btn {
+		margin-top: var(--space-4);
+		padding: var(--space-3) var(--space-6);
+		background: var(--accent);
+		color: white;
+		border: none;
+		border-radius: var(--radius);
+		font-size: var(--text-base);
+		font-weight: 600;
+		cursor: pointer;
+		transition: background 0.2s;
+	}
+
+	.next-btn:hover {
+		background: var(--accent-hover);
 	}
 
 	.scenario-complete {
