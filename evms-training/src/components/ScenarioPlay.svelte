@@ -9,8 +9,12 @@
 	const isLastTurn = $derived(scenario && gameStore.turnIndex >= scenario.turns.length);
 
 	function handleChoice(choice) {
+		gameStore.selectChoice(choice);
+	}
+
+	function handleNext() {
 		const wasLastTurn = gameStore.turnIndex >= scenario.turns.length - 1;
-		gameStore.applyChoice(choice);
+		gameStore.advanceAfterFeedback();
 		if (wasLastTurn) {
 			beadsStore.completeBead(scenarioId);
 		}
@@ -53,22 +57,33 @@
 					<div class="narrative-card">
 						<p class="narrative">{turn.narrative}</p>
 
-						{#if gameStore.feedback}
-							<div class="feedback">
-								<strong>Result:</strong> {gameStore.feedback}
+						{#if gameStore.awaitingAdvance}
+							{#if gameStore.feedback}
+								<div class="feedback">
+									<strong>Outcome:</strong> {gameStore.feedback}
+								</div>
+							{/if}
+							<button
+								type="button"
+								class="next-btn"
+								onclick={handleNext}
+								aria-label="Continue to next decision"
+							>
+								Next
+							</button>
+						{:else}
+							<div class="choices">
+								{#each turn.choices as choice}
+									<button
+										type="button"
+										class="choice-btn"
+										onclick={() => handleChoice(choice)}
+									>
+										{choice.text}
+									</button>
+								{/each}
 							</div>
 						{/if}
-
-						<div class="choices">
-							{#each turn.choices as choice}
-								<button
-									class="choice-btn"
-									onclick={() => handleChoice(choice)}
-								>
-									{choice.text}
-								</button>
-							{/each}
-						</div>
 					</div>
 				{/if}
 			</main>
@@ -187,6 +202,23 @@
 	.choice-btn:hover {
 		border-color: var(--accent);
 		background: var(--accent-muted);
+	}
+
+	.next-btn {
+		margin-top: var(--space-4);
+		padding: var(--space-3) var(--space-6);
+		background: var(--accent);
+		color: white;
+		border: none;
+		border-radius: var(--radius);
+		font-size: var(--text-base);
+		font-weight: 600;
+		cursor: pointer;
+		transition: background 0.2s;
+	}
+
+	.next-btn:hover {
+		background: var(--accent-hover);
 	}
 
 	.scenario-complete {

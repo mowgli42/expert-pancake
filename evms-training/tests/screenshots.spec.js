@@ -39,7 +39,7 @@ test.describe('Screenshot capture', () => {
 			fullPage: true
 		});
 
-		// 3. After making a choice - feedback and metrics
+		// 3. After making a choice - outcome feedback and metrics
 		await page.getByRole('button', { name: /Set posts as planned/i }).click();
 		await page.waitForTimeout(500);
 		await page.screenshot({
@@ -47,9 +47,10 @@ test.describe('Screenshot capture', () => {
 			fullPage: true
 		});
 
-		// 4. Complete scenario 1
+		await page.getByRole('button', { name: /Continue to next decision|Next/i }).click();
 		for (let i = 0; i < 4; i++) {
 			await page.locator('.choice-btn').first().click();
+			await page.getByRole('button', { name: /Continue to next decision|Next/i }).click();
 			await page.waitForTimeout(300);
 		}
 		await page.screenshot({
