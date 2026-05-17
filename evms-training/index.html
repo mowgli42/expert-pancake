@@ -2,19 +2,259 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="description" content="Interactive EVMS training through 10 real-world scenarios - from building a fence to a lunar mission" />
-    <title>EVMS Training - Earned Value Management</title>
+    <title>EVMS Training | Earned Value Management (EVM) Courses, EVMS 101 &amp; Interactive Scenarios</title>
+    <meta
+      name="description"
+      content="Free interactive EVMS and earned value training: EVMS 101 (BAC, PV, EV, AC, SPI, CPI, EAC), twelve read-the-metrics cases with manager-vs-data prompts, and ten project scenarios from fence to lunar program. Works in-browser; curriculum text is readable without JavaScript."
+    />
+    <meta
+      name="keywords"
+      content="EVMS training, earned value management, EVM course, EVMS 101, SPI, CPI, BAC, PV, EV, AC, SV, CV, EAC, VAC, ANSI-748, program management training, interactive EVMS scenarios"
+    />
+    <meta name="robots" content="index, follow" />
+    <meta name="author" content="EVMS Training" />
+    <meta name="theme-color" content="#0d9488" />
+
+    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
+    <link rel="canonical" href="__CANONICAL_HREF__" />
+
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="EVMS Training | Earned Value Management &amp; EVMS Interactive Lessons" />
+    <meta
+      property="og:description"
+      content="EVMS 101 definitions, twelve metrics literacy cases, and ten hands-on project scenarios. Curriculum summary available without JavaScript for accessibility and audit review."
+    />
+    <meta property="og:locale" content="en_US" />
+    __OG_SITE_BLOCK__
+
+    <meta name="twitter:card" content="summary" />
+    <meta name="twitter:title" content="EVMS Training | Earned Value Management &amp; EVMS" />
+    <meta
+      name="twitter:description"
+      content="Interactive EVMS / EVM training: definitions, metrics drills, and ten scenarios. Static curriculum outline for no-JS and crawler access."
+    />
+
+    <script type="application/ld+json">
+      __JSON_LD__
+    </script>
+
+    <style>
+      /* Static shell: readable before the Svelte bundle loads (slow networks, script failures, or JS disabled). */
+      .static-fallback {
+        font-family: system-ui, -apple-system, 'Segoe UI', Roboto, Ubuntu, Cantarell, 'Noto Sans', sans-serif;
+        line-height: 1.55;
+        color: #0f172a;
+        background: #f8fafc;
+        margin: 0;
+        min-height: 100vh;
+      }
+      .static-fallback a {
+        color: #0f766e;
+        font-weight: 600;
+      }
+      .static-fallback a:focus {
+        outline: 2px solid #0d9488;
+        outline-offset: 2px;
+      }
+      .static-fallback .wrap {
+        max-width: 52rem;
+        margin: 0 auto;
+        padding: 1.5rem 1.25rem 3rem;
+      }
+      .static-fallback .banner {
+        background: linear-gradient(135deg, #0d9488, #0f766e);
+        color: #fff;
+        padding: 1.75rem 1.25rem;
+        margin: 0 0 1.5rem;
+        border-radius: 0 0 0.75rem 0.75rem;
+        box-shadow: 0 4px 14px rgba(15, 118, 110, 0.25);
+      }
+      .static-fallback .banner h1 {
+        margin: 0 0 0.35rem;
+        font-size: 1.75rem;
+        line-height: 1.2;
+      }
+      .static-fallback .banner p {
+        margin: 0;
+        opacity: 0.95;
+        font-size: 1.05rem;
+      }
+      .static-fallback h2 {
+        font-size: 1.2rem;
+        margin: 1.75rem 0 0.5rem;
+        color: #134e4a;
+      }
+      .static-fallback h3 {
+        font-size: 1.05rem;
+        margin: 1.25rem 0 0.35rem;
+        color: #115e59;
+      }
+      .static-fallback p,
+      .static-fallback li {
+        font-size: 0.95rem;
+        color: #334155;
+      }
+      .static-fallback ul {
+        padding-left: 1.25rem;
+      }
+      .static-fallback .card {
+        background: #fff;
+        border: 1px solid #e2e8f0;
+        border-radius: 0.65rem;
+        padding: 1rem 1.15rem;
+        margin: 1rem 0;
+      }
+      .static-fallback .note {
+        background: #ecfdf5;
+        border-left: 4px solid #0d9488;
+        padding: 0.75rem 1rem;
+        margin: 1.25rem 0;
+        font-size: 0.9rem;
+        color: #134e4a;
+      }
+      .static-fallback footer {
+        margin-top: 2.5rem;
+        padding-top: 1.25rem;
+        border-top: 1px solid #e2e8f0;
+        font-size: 0.85rem;
+        color: #64748b;
+      }
+      .static-skip {
+        position: absolute;
+        left: -9999px;
+        z-index: 999;
+        padding: 0.5rem 1rem;
+        background: #0f766e;
+        color: #fff;
+        text-decoration: none;
+        font-weight: 600;
+      }
+      .static-skip:focus {
+        left: 0.5rem;
+        top: 0.5rem;
+      }
+    </style>
   </head>
   <body>
+    <a class="static-skip" href="#main-content">Skip to main content</a>
+
     <noscript>
-      <div style="padding: 2rem; text-align: center; font-family: system-ui;">
-        <h1>EVMS Training</h1>
-        <p>JavaScript is required. Please enable it and refresh.</p>
+      <div
+        role="status"
+        style="
+          padding: 1rem 1.25rem;
+          background: #fff7ed;
+          border-bottom: 1px solid #fdba74;
+          font-family: system-ui, sans-serif;
+          font-size: 0.95rem;
+          color: #9a3412;
+        "
+      >
+        <strong>Interactive mode</strong> (quizzes, scenario choices, and live metric panels) needs JavaScript. The
+        <strong>full curriculum outline</strong> below is readable with scripts turned off—scroll to
+        <a href="#main-content">main content</a>.
       </div>
     </noscript>
-    <div id="app"></div>
+
+    <div id="app">
+      <div class="static-fallback" data-static-shell>
+        <div class="banner">
+          <div class="wrap">
+            <h1>EVMS Training</h1>
+            <p>Earned value management and EVMS—interactive lessons, metrics drills, and ten project scenarios.</p>
+          </div>
+        </div>
+
+        <div class="wrap">
+          <main id="main-content">
+            <p>
+              This page is an <strong>interactive training experience</strong> used by program controls, finance, and
+              engineering teams to practice <strong>earned value management (EVM)</strong> and
+              <strong>EVMS-style</strong> reporting (PV, EV, AC, BAC, variances, SPI/CPI, and simple EAC/VAC forecasts).
+              When JavaScript loads successfully, you can choose learning paths, take a short quiz, and drive live
+              metrics through narrative scenarios.
+            </p>
+
+            <div class="note" role="note">
+              <strong>No JavaScript?</strong> You can still read everything on this screen for procurement reviews,
+              accessibility, or locked-down browsers. If scripts are only blocked temporarily, refresh once your
+              connection allows the application bundle to load—the same headings and flows appear in interactive mode.
+            </div>
+
+            <h2>Learning paths (recommended order)</h2>
+
+            <section class="card" aria-labelledby="path-evms101">
+              <h3 id="path-evms101">1. EVMS 101 — terms, comparison, and quiz</h3>
+              <p>
+                Introduces <strong>BAC, PV, EV, AC</strong>, schedule and cost variances (<strong>SV, CV</strong>),
+                indices (<strong>SPI, CPI</strong>), and forecast concepts (<strong>EAC, ETC, VAC</strong>). Includes a
+                contrast between <strong>spend-only tracking</strong> and true earned value, a small numeric example,
+                and a short multiple-choice quiz. Links to PMI, NDIA, and NASA references are included for deeper
+                reading.
+              </p>
+            </section>
+
+            <section class="card" aria-labelledby="path-metrics">
+              <h3 id="path-metrics">2. Read the metrics — twelve scenario drills</h3>
+              <p>
+                Twelve fixed snapshots with realistic program narratives. Each case shows PV, EV, AC, and BAC so you
+                can interpret <strong>SPI, CPI</strong>, and variances. Several items include a
+                <strong>program manager quote</strong> that may conflict with the numbers—you choose the response that
+                best aligns with the metrics (common in audits and IPT reviews).
+              </p>
+            </section>
+
+            <section class="card" aria-labelledby="path-projects">
+              <h3 id="path-projects">3. Project scenarios — ten choose-your-path projects</h3>
+              <p>
+                Hands-on stories from a <strong>backyard fence</strong> through a <strong>lunar mission program</strong>.
+                Decisions change <strong>planned value, earned value, and actual cost</strong>; the dashboard updates
+                SPI/CPI and related metrics. Progress is saved in the browser (local storage) so you can resume.
+              </p>
+              <p><strong>Sample scenario titles:</strong></p>
+              <ul>
+                <li>Building a Fence, Kitchen Renovation, Software Feature Sprint</li>
+                <li>Marketing Campaign Launch, Office Relocation, Manufacturing Line Setup</li>
+                <li>Hospital Wing Expansion, Bridge Rehabilitation, New Product Launch, Lunar Mission Program</li>
+              </ul>
+            </section>
+
+            <h2>Metrics you will practice</h2>
+            <p>
+              PV, EV, AC, BAC, EAC, ETC, SV, CV, SPI, CPI, and VAC—aligned with common <strong>ANSI-748</strong> /
+              <strong>PMI earned value</strong> teaching language. Narratives emphasize that
+              <strong>schedule variance is in budget units</strong> (valued work), not calendar days by itself.
+            </p>
+
+            <h2>Authoritative references (external)</h2>
+            <ul>
+              <li>
+                <a href="https://www.pmi.org/pmbok-guide-standards/practice/earned-value-management" target="_blank" rel="noopener noreferrer">PMI — Practice Standard for Earned Value Management</a>
+              </li>
+              <li>
+                <a href="https://www.ndia.org/divisions/industrial-committees/earned-value-management-systems" target="_blank" rel="noopener noreferrer">NDIA — Earned Value Management Systems (EIA-748 intent materials)</a>
+              </li>
+              <li>
+                <a href="https://evm.nasa.gov/main" target="_blank" rel="noopener noreferrer">NASA — EVM portal and handbooks</a>
+              </li>
+            </ul>
+
+            <h2>Audience</h2>
+            <p>
+              Program managers, control account managers, financial analysts, engineers, and auditors who need a
+              <strong>low-risk practice environment</strong> before touching production systems or customer deliverables.
+            </p>
+          </main>
+
+          <footer>
+            Static curriculum outline for crawlers, accessibility, and no-JS environments. Interactive application
+            powered by Svelte; enable JavaScript for the full experience.
+          </footer>
+        </div>
+      </div>
+    </div>
+
     <script type="module" src="/src/main.js"></script>
   </body>
 </html>
