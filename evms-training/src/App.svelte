@@ -1,16 +1,22 @@
 <script>
 	import BeadsProgress from './components/BeadsProgress.svelte';
+	import Evms101Thread from './components/Evms101Thread.svelte';
+	import MetricsLiteracyThread from './components/MetricsLiteracyThread.svelte';
 	import ScenarioCard from './components/ScenarioCard.svelte';
 	import ScenarioPlay from './components/ScenarioPlay.svelte';
+	import ThreadPicker from './components/ThreadPicker.svelte';
 	import { scenarios } from './lib/scenarios/index.js';
+	import { THREAD_IDS } from './lib/threads/index.js';
 	import { createBeadsStore } from './lib/stores/beadsStore.svelte.js';
 	import { createGameStore } from './lib/stores/gameStore.svelte.js';
 
 	const beadsStore = createBeadsStore();
 	const gameStore = createGameStore();
 	let currentScenarioId = $state(null);
+	let activeThread = $state(null);
 
 	$effect(function restoreInProgressGame() {
+		if (activeThread !== THREAD_IDS.projects) return;
 		const sid = gameStore.scenarioId;
 		if (!sid || currentScenarioId) return;
 		const scenario = scenarios.find((s) => s.id === sid);
@@ -18,12 +24,20 @@
 		currentScenarioId = sid;
 	});
 
+	function handleSelectThread(threadId) {
+		activeThread = threadId;
+	}
+
+	function handleLeaveThread() {
+		activeThread = null;
+	}
+
 	function handleSelectScenario(scenario) {
 		gameStore.initScenario(scenario);
 		currentScenarioId = scenario.id;
 	}
 
-	function handleBack() {
+	function handleBackFromScenario() {
 		currentScenarioId = null;
 	}
 
@@ -38,52 +52,63 @@
 		<div class="header-content">
 			<h1>EVMS Training</h1>
 			<p class="tagline">Earned Value Management — Learn by doing</p>
-			<BeadsProgress
-				beads={beadsStore.beads}
-				completedCount={beadsStore.completedCount}
-				totalCount={beadsStore.totalCount}
-			/>
+			{#if activeThread === THREAD_IDS.projects}
+				<BeadsProgress
+					beads={beadsStore.beads}
+					completedCount={beadsStore.completedCount}
+					totalCount={beadsStore.totalCount}
+				/>
+			{/if}
 		</div>
 	</header>
 
 	<main class="app-main">
-		{#if currentScenarioId}
-			<ScenarioPlay
-				scenarioId={currentScenarioId}
-				gameStore={gameStore}
-				beadsStore={beadsStore}
-				onBack={handleBack}
-			/>
+		{#if activeThread === THREAD_IDS.evms101}
+			<Evms101Thread onBack={handleLeaveThread} />
+		{:else if activeThread === THREAD_IDS.metricsLiteracy}
+			<MetricsLiteracyThread onBack={handleLeaveThread} />
+		{:else if activeThread === THREAD_IDS.projects}
+			{#if currentScenarioId}
+				<ScenarioPlay
+					scenarioId={currentScenarioId}
+					gameStore={gameStore}
+					beadsStore={beadsStore}
+					onBack={handleBackFromScenario}
+				/>
+			{:else}
+				<button type="button" class="breadcrumb" onclick={handleLeaveThread}>
+					← Learning paths
+				</button>
+				<section class="scenario-grid">
+					<div class="section-header">
+						<h2>Project scenarios</h2>
+						<p class="section-desc">
+							Progress through 10 real-world projects—from a backyard fence to a lunar mission.
+							Each scenario presents decisions that affect your EVMS metrics.
+						</p>
+					</div>
+					<div class="cards">
+						{#each scenarios as scenario}
+							<ScenarioCard
+								scenario={scenario}
+								unlocked={beadsStore.isUnlocked(scenario.id)}
+								completed={beadsStore.isCompleted(scenario.id)}
+								onSelect={() => handleSelectScenario(scenario)}
+							/>
+						{/each}
+					</div>
+					{#if beadsStore.completedCount > 0}
+						<button class="reset-btn" onclick={handleResetProgress}>Reset Progress</button>
+					{/if}
+				</section>
+			{/if}
 		{:else}
-			<section class="scenario-grid">
-				<div class="section-header">
-					<h2>Choose Your Scenario</h2>
-					<p class="section-desc">
-						Progress through 10 real-world projects—from a backyard fence to a lunar mission.
-						Each scenario presents decisions that affect your EVMS metrics.
-					</p>
-				</div>
-				<div class="cards">
-					{#each scenarios as scenario}
-						<ScenarioCard
-							scenario={scenario}
-							unlocked={beadsStore.isUnlocked(scenario.id)}
-							completed={beadsStore.isCompleted(scenario.id)}
-							onSelect={() => handleSelectScenario(scenario)}
-						/>
-					{/each}
-				</div>
-				{#if beadsStore.completedCount > 0}
-					<button class="reset-btn" onclick={handleResetProgress}>Reset Progress</button>
-				{/if}
-			</section>
+			<ThreadPicker onSelectThread={handleSelectThread} />
 		{/if}
 	</main>
 
 	<footer class="app-footer">
-		<p>
-			Built with Svelte · Design: IxDF principles · Spec: OpenSpec · Progress: Beads
-		</p>
+		<p>Built with Svelte · Design: IxDF principles · Spec: OpenSpec · Progress: Beads</p>
 	</footer>
 </div>
 
@@ -125,6 +150,24 @@
 		margin: 0 auto;
 		width: 100%;
 		padding: var(--space-6);
+	}
+
+	.breadcrumb {
+		display: inline-flex;
+		margin-bottom: var(--space-4);
+		padding: 0;
+		font-size: var(--text-sm);
+		font-weight: 600;
+		color: var(--accent);
+		background: none;
+		border: none;
+		cursor: pointer;
+		text-decoration: underline;
+		text-underline-offset: 3px;
+	}
+
+	.breadcrumb:hover {
+		color: var(--accent-dark);
 	}
 
 	.section-header {
