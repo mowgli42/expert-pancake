@@ -2,11 +2,39 @@
  * EVMS 101 — lesson cards (college-level) plus closing quiz.
  */
 
+export const evms101ExternalResources = [
+	{
+		label: 'PMI — Practice Standard for Earned Value Management',
+		href: 'https://www.pmi.org/pmbok-guide-standards/practice/earned-value-management',
+		note: 'Industry framing of EVM practice and governance.'
+	},
+	{
+		label: 'NDIA — Intent Guide (EIA-748 EVMS)',
+		href: 'https://www.ndia.org/divisions/industrial-committees/earned-value-management-systems',
+		note: 'Intent and implementation expectations for certified systems.'
+	},
+	{
+		label: 'NASA — EVM portal',
+		href: 'https://evm.nasa.gov/main',
+		note: 'Handbooks, training, and agency-specific implementation references.'
+	}
+];
+
 export const evms101Lessons = [
 	{
 		id: 'intro',
 		title: 'What is earned value?',
 		body: `Earned value management compares <strong>three fundamentals at the same time</strong>: what you planned to accomplish (PV), what you actually accomplished (EV), and what you paid to get there (AC). All three use the same unit—usually budget dollars—so schedule and cost signals stay comparable. Think of it as bookkeeping for scope: every dollar of EV means “we credibly finished this much work.”`
+	},
+	{
+		id: 'comparison',
+		title: 'Spend tracking alone vs earned value',
+		body: `Many status decks still show <strong>actual spend vs a time-phased budget “S-curve.”</strong> That answers “Are we drawing down the checkbook on pace?” It does <strong>not</strong> prove the scope behind the curve is done. You can be “on budget” against a cash plan while accomplishing less work than scheduled—classic false comfort.<br><br><strong>Earned value</strong> adds the missing leg: <strong>EV</strong> ties dollars to <em>completed</em> scope. Pairing EV with <strong>PV</strong> (schedule in value terms) and <strong>AC</strong> (cost of work performed) is what produces SPI/CPI and the variances you will use in the next cards.`
+	},
+	{
+		id: 'mini-example',
+		title: 'Mini example — one control month',
+		body: `Imagine <strong>BAC = $100,000</strong> for a small package. At the January status date the baseline called for <strong>PV = $40,000</strong> of valued work. The team credibly finished scope worth <strong>EV = $35,000</strong> and booked <strong>AC = $38,000</strong> for that effort.<br><br><strong>Schedule signal:</strong> SV = EV − PV = <strong>−$5,000</strong> (behind the plan in valued work). SPI = EV ÷ PV = <strong>0.875</strong>.<br><strong>Cost signal:</strong> CV = EV − AC = <strong>−$3,000</strong> (work performed cost more than the earned budget for it). CPI = EV ÷ AC ≈ <strong>0.92</strong>.<br><br>Same month: if you only compared AC to a spend curve, you might look nearly “on plan” at $38k vs $40k—EV reveals both dimensions slipped.`
 	},
 	{
 		id: 'bac',
@@ -46,9 +74,13 @@ export const evms101Lessons = [
 	{
 		id: 'wrap',
 		title: 'How the pieces fit',
-		body: `At any status date you can read the story quickly: <strong>SPI</strong> and <strong>SV</strong> describe schedule performance in value terms; <strong>CPI</strong> and <strong>CV</strong> describe cost efficiency; <strong>EAC / VAC</strong> extend those trends toward the finish. Next is a short quiz—no trick questions, just checks that the vocabulary sticks.`
+		body: `At any status date you can read the story quickly: <strong>SPI</strong> and <strong>SV</strong> describe schedule performance in value terms; <strong>CPI</strong> and <strong>CV</strong> describe cost efficiency; <strong>EAC / VAC</strong> extend those trends toward the finish. Next is a short quiz—no trick questions, just checks that the vocabulary sticks.<br><br>After the quiz, try <strong>Read the metrics</strong> for twelve short cases (including “what if the manager says X?”), then the <strong>Project scenarios</strong> path for hands-on practice.`,
+		showResources: true
 	}
 ];
+
+/** For tests: clicks on “Next” before “Start quiz” appears */
+export const evms101LessonCount = evms101Lessons.length;
 
 export const evms101Quiz = [
 	{

@@ -92,6 +92,12 @@
 					<p class="narrative">{scenario.narrative}</p>
 				</div>
 				<article class="question-card">
+					{#if question.managerQuote}
+						<blockquote class="manager-quote">
+							<span class="quote-label">Program manager says</span>
+							{question.managerQuote}
+						</blockquote>
+					{/if}
 					<p class="prompt">{question.prompt}</p>
 					<div class="options">
 						{#each question.options as label, i}
@@ -223,6 +229,28 @@
 		border: 1px solid var(--border);
 		border-radius: var(--radius-lg);
 		padding: var(--space-5);
+	}
+
+	.manager-quote {
+		margin: 0 0 var(--space-4);
+		padding: var(--space-3) var(--space-4);
+		border-left: 4px solid var(--warning);
+		background: rgba(245, 158, 11, 0.08);
+		font-size: var(--text-sm);
+		line-height: 1.55;
+		color: var(--text-1);
+		font-style: italic;
+	}
+
+	.quote-label {
+		display: block;
+		font-style: normal;
+		font-size: var(--text-xs);
+		font-weight: 700;
+		text-transform: uppercase;
+		letter-spacing: 0.05em;
+		color: var(--text-3);
+		margin-bottom: var(--space-2);
 	}
 
 	.prompt {

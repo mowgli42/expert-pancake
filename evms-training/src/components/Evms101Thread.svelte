@@ -1,5 +1,9 @@
 <script>
-	import { evms101Lessons, evms101Quiz } from '../lib/threads/evms101Content.js';
+	import {
+		evms101ExternalResources,
+		evms101Lessons,
+		evms101Quiz
+	} from '../lib/threads/evms101Content.js';
 
 	let { onBack } = $props();
 
@@ -95,6 +99,21 @@
 		<article class="card lesson-card">
 			<h3>{lesson.title}</h3>
 			<p class="lesson-body">{@html lesson.body}</p>
+			{#if lesson.showResources}
+				<section class="resources" aria-labelledby="evms101-res-title">
+					<h4 id="evms101-res-title">Further reading</h4>
+					<ul>
+						{#each evms101ExternalResources as link}
+							<li>
+								<a href={link.href} target="_blank" rel="noopener noreferrer">{link.label}</a>
+								{#if link.note}
+									<span class="res-note"> — {link.note}</span>
+								{/if}
+							</li>
+						{/each}
+					</ul>
+				</section>
+			{/if}
 			<div class="nav-row">
 				<button type="button" class="secondary-btn" onclick={goLessonsPrev} disabled={lessonIndex === 0}>
 					Previous
@@ -144,12 +163,28 @@
 				You answered <strong>{correctCount}</strong> of <strong>{totalQuiz}</strong> correctly.
 			</p>
 			{#if correctCount === totalQuiz}
-				<p class="blurb">Solid grasp of the core definitions—carry that into the project scenarios next.</p>
+				<p class="blurb">
+					Solid grasp of the core definitions—next try <strong>Read the metrics</strong> for twelve short cases, then the
+					<strong>Project scenarios</strong> path.
+				</p>
 			{:else if correctCount >= totalQuiz * 0.75}
 				<p class="blurb">Good work. Skim the lesson cards for any questions you missed, then try again anytime.</p>
 			{:else}
 				<p class="blurb">Review the lesson cards and retry the quiz when ready—the terms pay off quickly with repetition.</p>
 			{/if}
+			<section class="resources results-resources" aria-labelledby="evms101-res-quiz-title">
+				<h4 id="evms101-res-quiz-title">Further reading</h4>
+				<ul>
+					{#each evms101ExternalResources as link}
+						<li>
+							<a href={link.href} target="_blank" rel="noopener noreferrer">{link.label}</a>
+							{#if link.note}
+								<span class="res-note"> — {link.note}</span>
+							{/if}
+						</li>
+					{/each}
+				</ul>
+			</section>
 			<div class="nav-row">
 				<button type="button" class="secondary-btn" onclick={restartFromTop}>Review lessons</button>
 				<button type="button" class="primary-btn" onclick={handleBack}>Learning paths</button>
@@ -228,6 +263,49 @@
 
 	.lesson-body :global(strong) {
 		color: var(--text-1);
+	}
+
+	.resources {
+		margin: 0 0 var(--space-5);
+		padding: var(--space-4);
+		background: var(--surface-1);
+		border-radius: var(--radius);
+		border: 1px solid var(--border);
+	}
+
+	.resources h4 {
+		margin: 0 0 var(--space-2);
+		font-size: var(--text-sm);
+		font-weight: 700;
+		color: var(--text-1);
+		text-transform: uppercase;
+		letter-spacing: 0.04em;
+	}
+
+	.resources ul {
+		margin: 0;
+		padding-left: 1.25rem;
+		color: var(--text-2);
+		font-size: var(--text-sm);
+		line-height: 1.55;
+	}
+
+	.resources a {
+		color: var(--accent);
+		font-weight: 600;
+	}
+
+	.resources a:hover {
+		text-decoration: underline;
+	}
+
+	.res-note {
+		font-weight: 400;
+		color: var(--text-3);
+	}
+
+	.results-resources {
+		margin-bottom: var(--space-5);
 	}
 
 	.prompt {

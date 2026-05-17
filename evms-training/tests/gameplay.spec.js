@@ -1,4 +1,5 @@
 import { test, expect } from '@playwright/test';
+import { evms101LessonCount } from '../src/lib/threads/evms101Content.js';
 
 async function ensureAppLoaded(page) {
 	await page.goto('/');
@@ -189,7 +190,7 @@ test.describe('EVMS Training - Gameplay', () => {
 		await page.getByRole('button', { name: /Learning path: EVMS 101/i }).click();
 		await expect(page.getByRole('heading', { level: 2 })).toContainText('EVMS 101');
 		await expect(page.getByText(/Lesson 1 of/)).toBeVisible();
-		for (let i = 0; i < 8; i++) {
+		for (let i = 0; i < evms101LessonCount - 1; i++) {
 			await page.getByRole('button', { name: 'Next' }).click();
 		}
 		await page.getByRole('button', { name: /Start quiz/i }).click();
@@ -199,6 +200,7 @@ test.describe('EVMS Training - Gameplay', () => {
 	test('Read the metrics thread shows dashboard and first question', async ({ page }) => {
 		await page.getByRole('button', { name: /Learning path: Read the metrics/i }).click();
 		await expect(page.getByRole('heading', { name: /EVMS Metrics/i })).toBeVisible();
+		await expect(page.getByText(/Case 1 of 12/)).toBeVisible();
 		await expect(page.getByText(/Firmware milestone review/)).toBeVisible();
 	});
 });

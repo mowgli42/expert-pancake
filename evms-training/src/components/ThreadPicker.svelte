@@ -8,7 +8,8 @@
 	<div class="section-header">
 		<h2 id="threads-heading">Choose a learning path</h2>
 		<p class="section-desc">
-			Three threads: narrative projects (hands-on), a vocabulary-first EVMS 101 with a quiz, and short cases where you read the numbers.
+			Recommended order on this page: EVMS 101 first, then Read the metrics (twelve cases), then Project scenarios for
+			hands-on narratives.
 		</p>
 	</div>
 	<div class="thread-cards">
