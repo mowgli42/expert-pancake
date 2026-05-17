@@ -25,11 +25,14 @@ test.describe('Screenshot capture', () => {
 		await page.reload();
 		await page.waitForSelector('h1', { timeout: 15000 });
 
-		// 1. Home - Scenario selection
+		// 1. Learning paths, then project scenario list
 		await page.screenshot({
 			path: `${SCREENSHOTS_DIR}/01-home-scenario-select.png`,
 			fullPage: true
 		});
+
+		await page.getByRole('button', { name: /Learning path: Project scenarios/i }).click();
+		await page.waitForSelector('text=Project scenarios', { timeout: 5000 });
 
 		// 2. Click first scenario, show first turn
 		await page.getByRole('button', { name: /Scenario: Building a Fence/i }).click();
