@@ -21,7 +21,7 @@ test.describe('EVMS Training - Gameplay', () => {
 
 	test('home page displays header and learning paths', async ({ page }) => {
 		await expect(page.getByRole('heading', { level: 1 })).toContainText('EVMS Training');
-		await expect(page.getByText('Earned Value Management')).toBeVisible();
+		await expect(page.getByText('Earned Value Management — Learn by doing')).toBeVisible();
 
 		await expect(page.getByRole('heading', { level: 2 })).toContainText('Choose a learning path');
 		await expect(page.getByRole('button', { name: /Learning path: EVMS 101/i })).toBeVisible();

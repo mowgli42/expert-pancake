@@ -1,9 +1,13 @@
 <script>
 	import { calculateEvmsMetrics } from '../lib/evms/calculations.js';
 	import { metricsLiteracyScenarios } from '../lib/threads/metricsLiteracyScenarios.js';
+	import { THREAD_IDS } from '../lib/threads/index.js';
+	import { trackEvent } from '../lib/analytics.js';
 	import EvmsMetricsDashboard from './EvmsMetricsDashboard.svelte';
 
-	let { onBack } = $props();
+	let { onBack, progressStore = null } = $props();
+
+	let CertificatePanel = $state(null);
 
 	let scenarioIndex = $state(0);
 	let questionIndex = $state(0);
@@ -48,13 +52,23 @@
 		finishAll();
 	}
 
-	function finishAll() {
-		scenarioIndex = 0;
-		questionIndex = 0;
-		picked = null;
-		showFeedback = false;
-		onBack?.();
+	async function loadCertificatePanel() {
+		if (!CertificatePanel) {
+			CertificatePanel = (await import('./CertificatePanel.svelte')).default;
+		}
 	}
+
+	function finishAll() {
+		trackEvent('metrics_drills_completed', {
+			path_id: THREAD_IDS.metricsLiteracy,
+			total_cases: metricsLiteracyScenarios.length
+		});
+		progressStore?.saveMetricsLiteracy({ completed: true });
+		loadCertificatePanel();
+		showCompletion = true;
+	}
+
+	let showCompletion = $state(false);
 
 	function handleBack() {
 		scenarioIndex = 0;
@@ -65,7 +79,24 @@
 	}
 </script>
 
-{#if scenario && question && metrics}
+{#if showCompletion && CertificatePanel}
+	<div class="thread-play">
+		<header class="play-header">
+			<h2>Read the metrics — complete</h2>
+		</header>
+		<article class="completion-card">
+			<p>You finished all twelve case drills. Download a certificate for your training records.</p>
+			<CertificatePanel
+				pathId={THREAD_IDS.metricsLiteracy}
+				pathTitle="Read the metrics — twelve case drills"
+				hoursEstimate="2.0–3.0"
+			/>
+			<button type="button" class="primary-btn" onclick={() => { showCompletion = false; onBack?.(); }}>
+				Learning paths
+			</button>
+		</article>
+	</div>
+{:else if scenario && question && metrics}
 	<div class="thread-play">
 		<header class="play-header">
 			<button type="button" class="back-btn" onclick={handleBack} aria-label="Back to learning paths">
@@ -82,10 +113,10 @@
 		</header>
 
 		<div class="play-content">
-			<aside class="metrics-sidebar">
-				<EvmsMetricsDashboard {metrics} bac={scenario.bac} />
+			<aside class="metrics-sidebar" aria-label="EVMS metrics for this case">
+				<EvmsMetricsDashboard {metrics} bac={scenario.bac} compactOnNarrow={true} />
 			</aside>
-			<main class="main-panel">
+			<main class="main-panel" aria-label="Case narrative and questions">
 				<div class="case-card">
 					<h3>{scenario.title}</h3>
 					<p class="subtitle">{scenario.subtitle}</p>
@@ -98,12 +129,14 @@
 							{question.managerQuote}
 						</blockquote>
 					{/if}
-					<p class="prompt">{question.prompt}</p>
-					<div class="options">
+					<p class="prompt" id="metrics-q-{scenario.id}-{questionIndex}">{question.prompt}</p>
+					<div class="options" role="radiogroup" aria-labelledby="metrics-q-{scenario.id}-{questionIndex}">
 						{#each question.options as label, i}
 							<button
 								type="button"
 								class="option"
+								role="radio"
+								aria-checked={picked === i}
 								class:selected={picked === i}
 								class:correct={showFeedback && i === question.correctIndex}
 								class:wrong={showFeedback && picked === i && i !== question.correctIndex}
@@ -344,5 +377,19 @@
 	.secondary-btn:disabled {
 		opacity: 0.35;
 		cursor: not-allowed;
+	}
+
+	.completion-card {
+		background: var(--surface-2);
+		border: 1px solid var(--border);
+		border-radius: var(--radius-lg);
+		padding: var(--space-5);
+		max-width: 640px;
+	}
+
+	.completion-card p {
+		margin: 0 0 var(--space-4);
+		color: var(--text-2);
+		line-height: 1.55;
 	}
 </style>

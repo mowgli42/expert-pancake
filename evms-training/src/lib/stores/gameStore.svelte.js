@@ -3,26 +3,20 @@
  */
 
 import { calculateEvmsMetrics } from '../evms/calculations.js';
+import { readJson, writeJsonDebounced, writeJson } from '../storage.js';
 
 const STORAGE_KEY = 'evms-training-game';
 
 function loadFromStorage() {
-	const raw = localStorage.getItem(STORAGE_KEY);
-	if (!raw) return null;
-	let parsed;
-	try {
-		parsed = JSON.parse(raw);
-	} catch {
-		return null;
-	}
+	const parsed = readJson(STORAGE_KEY, null);
 	return parsed && typeof parsed.scenarioId === 'number' ? parsed : null;
 }
 
 function saveToStorage(state) {
 	if (state?.scenarioId != null) {
-		localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+		writeJsonDebounced(STORAGE_KEY, state);
 	} else {
-		localStorage.removeItem(STORAGE_KEY);
+		writeJson(STORAGE_KEY, null);
 	}
 }
 
@@ -106,7 +100,7 @@ export function createGameStore() {
 		feedback = null;
 		awaitingAdvance = false;
 		choiceHistory = [];
-		localStorage.removeItem(STORAGE_KEY);
+		writeJson(STORAGE_KEY, null);
 	}
 
 	const metrics = $derived(bac > 0 ? calculateEvmsMetrics({ pv, ev, ac, bac }) : null);

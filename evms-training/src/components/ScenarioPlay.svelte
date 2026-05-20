@@ -1,9 +1,17 @@
 <script>
 	import { getPerformanceIndicator, summarizeScenarioComplete } from '../lib/evms/calculations.js';
 	import { getScenario } from '../lib/scenarios/index.js';
+	import {
+		trackScenarioChoice,
+		trackScenarioCompleted,
+		trackScenarioProgress
+	} from '../lib/analytics.js';
 	import EvmsMetricsDashboard from './EvmsMetricsDashboard.svelte';
 
 	const CHOICE_REVEAL_DELAY_MS = 400;
+	const reducedMotion =
+		typeof window !== 'undefined' &&
+		window.matchMedia?.('(prefers-reduced-motion: reduce)')?.matches;
 
 	let { scenarioId, gameStore, beadsStore, onBack } = $props();
 
@@ -44,6 +52,10 @@
 	}
 
 	function scheduleChoicesReveal() {
+		if (reducedMotion) {
+			choicesRevealReady = true;
+			return;
+		}
 		choicesRevealReady = false;
 		clearRevealTimer();
 		revealChoicesTimeoutId = setTimeout(function revealChoices() {
@@ -57,6 +69,14 @@
 
 	function handleChoice(choice) {
 		gameStore.selectChoice(choice);
+		trackScenarioChoice(scenarioId, gameStore.turnIndex, choice.text);
+	}
+
+	function handleChoiceKeydown(event, choice) {
+		if (event.key === 'Enter' || event.key === ' ') {
+			event.preventDefault();
+			handleChoice(choice);
+		}
 	}
 
 	function handleNext() {
@@ -66,8 +86,10 @@
 			clearRevealTimer();
 			choicesRevealReady = true;
 			beadsStore.completeBead(scenarioId);
+			trackScenarioCompleted(scenarioId);
 			return;
 		}
+		trackScenarioProgress(scenarioId, gameStore.turnIndex, scenario.turns.length, 'advance');
 		scheduleChoicesReveal();
 	}
 
@@ -110,11 +132,15 @@
 		</header>
 
 		<div class="play-content">
-			<aside class="metrics-sidebar">
-				<EvmsMetricsDashboard metrics={gameStore.metrics} bac={scenario.bac} />
+			<aside class="metrics-sidebar" aria-label="Live EVMS metrics">
+				<EvmsMetricsDashboard
+					metrics={gameStore.metrics}
+					bac={scenario.bac}
+					compactOnNarrow={true}
+				/>
 			</aside>
 
-			<main class="narrative-area">
+			<main class="narrative-area" aria-label="Scenario narrative and decisions">
 				{#if isLastTurn}
 					<div class="scenario-complete">
 						<div class="complete-icon">✓</div>
@@ -160,13 +186,16 @@
 								Next
 							</button>
 						{:else if choicesRevealReady}
-							<div class="choices">
-								{#each turn.choices as choice}
+							<div class="choices" role="group" aria-label="Choose your next action">
+								{#each turn.choices as choice, i}
 									<button
 										type="button"
 										class="choice-btn"
 										onclick={() => handleChoice(choice)}
+										onkeydown={(e) => handleChoiceKeydown(e, choice)}
+										aria-keyshortcuts="Enter Space"
 									>
+										<span class="choice-num" aria-hidden="true">{i + 1}.</span>
 										{choice.text}
 									</button>
 								{/each}
@@ -279,7 +308,11 @@
 	}
 
 	.choice-btn {
+		display: flex;
+		gap: var(--space-2);
+		align-items: flex-start;
 		padding: var(--space-4);
+		min-height: 44px;
 		text-align: left;
 		background: var(--surface-1);
 		border: 2px solid var(--border);
@@ -294,6 +327,18 @@
 	.choice-btn:hover {
 		border-color: var(--accent);
 		background: var(--accent-muted);
+	}
+
+	.choice-num {
+		font-weight: 700;
+		color: var(--accent);
+		flex-shrink: 0;
+	}
+
+	@media (prefers-reduced-motion: reduce) {
+		.choice-btn {
+			transition: none;
+		}
 	}
 
 	.choices-pending {

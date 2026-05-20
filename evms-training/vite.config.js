@@ -71,5 +71,17 @@ function injectPublicSiteMeta(mode) {
 
 // https://vite.dev/config/
 export default defineConfig(({ mode }) => ({
-	plugins: [svelte(), injectPublicSiteMeta(mode)]
+	plugins: [svelte(), injectPublicSiteMeta(mode)],
+	build: {
+		rollupOptions: {
+			output: {
+				manualChunks(id) {
+					if (id.includes('scenarios/index')) return 'scenarios-data';
+					if (id.includes('metricsLiteracyScenarios')) return 'metrics-data';
+					if (id.includes('evms101Content')) return 'evms101-data';
+					if (id.includes('node_modules')) return 'vendor';
+				}
+			}
+		}
+	}
 }));

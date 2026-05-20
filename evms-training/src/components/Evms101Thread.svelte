@@ -4,8 +4,12 @@
 		evms101Lessons,
 		evms101Quiz
 	} from '../lib/threads/evms101Content.js';
+	import { THREAD_IDS } from '../lib/threads/index.js';
+	import { trackQuizCompleted } from '../lib/analytics.js';
 
-	let { onBack } = $props();
+	let { onBack, progressStore = null } = $props();
+
+	let CertificatePanel = $state(null);
 
 	let phase = $state('lessons');
 	let lessonIndex = $state(0);
@@ -48,10 +52,23 @@
 		}
 	}
 
+	async function loadCertificatePanel() {
+		if (!CertificatePanel) {
+			CertificatePanel = (await import('./CertificatePanel.svelte')).default;
+		}
+	}
+
 	function nextQuiz() {
 		if (!showQuizFeedback) return;
 		if (quizIndex >= totalQuiz - 1) {
 			phase = 'results';
+			trackQuizCompleted(THREAD_IDS.evms101, correctCount, totalQuiz);
+			progressStore?.saveEvms101({
+				quizComplete: true,
+				quizScore: correctCount,
+				quizTotal: totalQuiz
+			});
+			loadCertificatePanel();
 			return;
 		}
 		quizIndex += 1;
@@ -133,6 +150,8 @@
 						<button
 							type="button"
 							class="option"
+							role="radio"
+							aria-checked={picked === i}
 							class:selected={picked === i}
 							class:correct={showQuizFeedback && i === quizItem.correctIndex}
 							class:wrong={showQuizFeedback && picked === i && i !== quizItem.correctIndex}
@@ -185,6 +204,13 @@
 					{/each}
 				</ul>
 			</section>
+			{#if CertificatePanel}
+				<CertificatePanel
+					pathId={THREAD_IDS.evms101}
+					pathTitle="EVMS 101 — Terms, contrast & quiz"
+					hoursEstimate="0.75–1.0"
+				/>
+			{/if}
 			<div class="nav-row">
 				<button type="button" class="secondary-btn" onclick={restartFromTop}>Review lessons</button>
 				<button type="button" class="primary-btn" onclick={handleBack}>Learning paths</button>
