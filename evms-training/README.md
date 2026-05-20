@@ -82,6 +82,10 @@ npm run build
 
 Output in `dist/` — deploy to any static host.
 
+### Analytics (optional)
+
+Set `VITE_GA4_MEASUREMENT_ID` at build time to enable Google Analytics 4 event tracking (path selection, quiz completion, scenario choices). Without it, events are logged in development and dispatched as `evms-analytics` custom DOM events for other tools.
+
 ## Testing
 
 Playwright tests verify gameplay displays and functions:

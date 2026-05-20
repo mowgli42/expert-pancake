@@ -1,19 +1,51 @@
 <script>
+	import { onMount } from 'svelte';
 	import BeadsProgress from './components/BeadsProgress.svelte';
-	import Evms101Thread from './components/Evms101Thread.svelte';
-	import MetricsLiteracyThread from './components/MetricsLiteracyThread.svelte';
-	import ScenarioCard from './components/ScenarioCard.svelte';
-	import ScenarioPlay from './components/ScenarioPlay.svelte';
+	import JsErrorBanner from './components/JsErrorBanner.svelte';
 	import ThreadPicker from './components/ThreadPicker.svelte';
+	import { trackPathSelected } from './lib/analytics.js';
 	import { scenarios } from './lib/scenarios/index.js';
-	import { THREAD_IDS } from './lib/threads/index.js';
+	import { PDU_DISCLAIMER, THREAD_IDS } from './lib/threads/index.js';
 	import { createBeadsStore } from './lib/stores/beadsStore.svelte.js';
 	import { createGameStore } from './lib/stores/gameStore.svelte.js';
+	import { createProgressStore } from './lib/stores/progressStore.svelte.js';
+	import { flushPendingWrites, isStorageAvailable } from './lib/storage.js';
 
 	const beadsStore = createBeadsStore();
 	const gameStore = createGameStore();
+	const progressStore = createProgressStore();
+
 	let currentScenarioId = $state(null);
 	let activeThread = $state(null);
+	let storageWarning = $state(false);
+
+	let Evms101Thread = $state(null);
+	let MetricsLiteracyThread = $state(null);
+	let ScenarioCard = $state(null);
+	let ScenarioPlay = $state(null);
+
+	const threadLoaders = {
+		[THREAD_IDS.evms101]: () => import('./components/Evms101Thread.svelte'),
+		[THREAD_IDS.metricsLiteracy]: () => import('./components/MetricsLiteracyThread.svelte'),
+		[THREAD_IDS.projects]: () => import('./components/ScenarioCard.svelte')
+	};
+
+	async function loadThreadComponent(threadId) {
+		if (threadId === THREAD_IDS.evms101 && !Evms101Thread) {
+			Evms101Thread = (await threadLoaders[threadId]()).default;
+		}
+		if (threadId === THREAD_IDS.metricsLiteracy && !MetricsLiteracyThread) {
+			MetricsLiteracyThread = (await threadLoaders[threadId]()).default;
+		}
+		if (threadId === THREAD_IDS.projects) {
+			if (!ScenarioCard) {
+				ScenarioCard = (await threadLoaders[threadId]()).default;
+			}
+			if (!ScenarioPlay) {
+				ScenarioPlay = (await import('./components/ScenarioPlay.svelte')).default;
+			}
+		}
+	}
 
 	$effect(function restoreInProgressGame() {
 		if (activeThread !== THREAD_IDS.projects) return;
@@ -22,10 +54,20 @@
 		const scenario = scenarios.find((s) => s.id === sid);
 		if (!scenario || gameStore.turnIndex >= scenario.turns.length) return;
 		currentScenarioId = sid;
+		loadThreadComponent(THREAD_IDS.projects);
 	});
 
-	function handleSelectThread(threadId) {
+	onMount(function checkStorage() {
+		storageWarning = !isStorageAvailable();
+		return function onUnload() {
+			flushPendingWrites();
+		};
+	});
+
+	async function handleSelectThread(threadId) {
+		await loadThreadComponent(threadId);
 		activeThread = threadId;
+		trackPathSelected(threadId);
 	}
 
 	function handleLeaveThread() {
@@ -47,6 +89,9 @@
 	}
 </script>
 
+<a class="skip-link" href="#main-content">Skip to main content</a>
+<JsErrorBanner />
+
 <div class="app">
 	<header class="app-header">
 		<div class="header-content">
@@ -62,12 +107,19 @@
 		</div>
 	</header>
 
-	<main class="app-main">
-		{#if activeThread === THREAD_IDS.evms101}
-			<Evms101Thread onBack={handleLeaveThread} />
-		{:else if activeThread === THREAD_IDS.metricsLiteracy}
-			<MetricsLiteracyThread onBack={handleLeaveThread} />
-		{:else if activeThread === THREAD_IDS.projects}
+	<main id="main-content" class="app-main" tabindex="-1">
+		{#if storageWarning}
+			<p class="storage-warning" role="status">
+				Progress cannot be saved in this browser mode (private browsing or storage blocked). You can still
+				practice; reload may reset scenarios.
+			</p>
+		{/if}
+
+		{#if activeThread === THREAD_IDS.evms101 && Evms101Thread}
+			<Evms101Thread onBack={handleLeaveThread} progressStore={progressStore} />
+		{:else if activeThread === THREAD_IDS.metricsLiteracy && MetricsLiteracyThread}
+			<MetricsLiteracyThread onBack={handleLeaveThread} progressStore={progressStore} />
+		{:else if activeThread === THREAD_IDS.projects && ScenarioCard && ScenarioPlay}
 			{#if currentScenarioId}
 				<ScenarioPlay
 					scenarioId={currentScenarioId}
@@ -79,12 +131,13 @@
 				<button type="button" class="breadcrumb" onclick={handleLeaveThread}>
 					← Learning paths
 				</button>
-				<section class="scenario-grid">
+				<section class="scenario-grid" aria-labelledby="scenarios-heading">
 					<div class="section-header">
-						<h2>Project scenarios</h2>
+						<h2 id="scenarios-heading">Project scenarios</h2>
 						<p class="section-desc">
 							Progress through 10 real-world projects—from a backyard fence to a lunar mission.
-							Each scenario presents decisions that affect your EVMS metrics.
+							Each scenario presents decisions that affect your EVMS metrics. Estimated time: 4–6 hours
+							for all ten.
 						</p>
 					</div>
 					<div class="cards">
@@ -102,17 +155,40 @@
 					{/if}
 				</section>
 			{/if}
+		{:else if activeThread}
+			<p class="loading-thread" role="status" aria-live="polite">Loading learning path…</p>
 		{:else}
 			<ThreadPicker onSelectThread={handleSelectThread} />
 		{/if}
 	</main>
 
 	<footer class="app-footer">
-		<p>Built with Svelte · Design: IxDF principles · Spec: OpenSpec · Progress: Beads</p>
+		<p>
+			Aligned with EIA-748 (ANSI-748) intent and PMI Practice Standard teaching language.
+			{PDU_DISCLAIMER}
+		</p>
+		<p class="footer-meta">Built with Svelte · Design: IxDF principles · Spec: OpenSpec · Progress: Beads</p>
 	</footer>
 </div>
 
 <style>
+	.skip-link {
+		position: absolute;
+		left: -9999px;
+		z-index: 9999;
+		padding: var(--space-2) var(--space-4);
+		background: var(--accent-dark);
+		color: white;
+		text-decoration: none;
+		font-weight: 600;
+		border-radius: var(--radius);
+	}
+
+	.skip-link:focus {
+		left: var(--space-4);
+		top: var(--space-4);
+	}
+
 	.app {
 		min-height: 100vh;
 		display: flex;
@@ -150,6 +226,22 @@
 		margin: 0 auto;
 		width: 100%;
 		padding: var(--space-6);
+	}
+
+	.storage-warning {
+		padding: var(--space-3) var(--space-4);
+		margin-bottom: var(--space-4);
+		background: #fff7ed;
+		border: 1px solid #fdba74;
+		border-radius: var(--radius);
+		font-size: var(--text-sm);
+		color: #9a3412;
+	}
+
+	.loading-thread {
+		padding: var(--space-6);
+		text-align: center;
+		color: var(--text-2);
 	}
 
 	.breadcrumb {
@@ -191,7 +283,7 @@
 
 	.scenario-grid .cards {
 		display: grid;
-		grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+		grid-template-columns: repeat(auto-fill, minmax(min(100%, 280px), 1fr));
 		gap: var(--space-4);
 	}
 
@@ -213,10 +305,21 @@
 	}
 
 	.app-footer {
-		padding: var(--space-4);
+		padding: var(--space-4) var(--space-6);
 		text-align: center;
 		font-size: var(--text-sm);
 		color: var(--text-3);
 		border-top: 1px solid var(--border);
+		max-width: var(--content-max);
+		margin: 0 auto;
+	}
+
+	.app-footer p {
+		margin: 0 0 var(--space-2);
+		line-height: 1.5;
+	}
+
+	.footer-meta {
+		font-size: var(--text-xs);
 	}
 </style>

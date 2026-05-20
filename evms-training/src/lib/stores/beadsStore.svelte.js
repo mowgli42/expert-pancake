@@ -1,7 +1,9 @@
 /**
  * Beads progress store—tracks completion across 10 scenarios.
- * Persisted to localStorage.
+ * Persisted to localStorage (debounced).
  */
+
+import { readJson, writeJsonDebounced, writeJson } from '../storage.js';
 
 const STORAGE_KEY = 'evms-training-beads';
 
@@ -19,19 +21,13 @@ const DEFAULT_BEADS = [
 ];
 
 function loadFromStorage() {
-	const raw = localStorage.getItem(STORAGE_KEY);
-	if (!raw) return DEFAULT_BEADS;
-	let parsed;
-	try {
-		parsed = JSON.parse(raw);
-	} catch {
-		return DEFAULT_BEADS;
-	}
-	return Array.isArray(parsed) ? parsed : DEFAULT_BEADS;
+	const parsed = readJson(STORAGE_KEY, null);
+	if (!parsed) return structuredClone(DEFAULT_BEADS);
+	return Array.isArray(parsed) ? parsed : structuredClone(DEFAULT_BEADS);
 }
 
 function saveToStorage(beads) {
-	localStorage.setItem(STORAGE_KEY, JSON.stringify(beads));
+	writeJsonDebounced(STORAGE_KEY, beads);
 }
 
 export function createBeadsStore() {
@@ -53,7 +49,7 @@ export function createBeadsStore() {
 
 	function resetProgress() {
 		beads = structuredClone(DEFAULT_BEADS);
-		saveToStorage(beads);
+		writeJson(STORAGE_KEY, beads);
 	}
 
 	function isUnlocked(scenarioId) {

@@ -72,6 +72,12 @@ export const evms101Lessons = [
 		body: `A common teaching forecast uses <strong>EAC = BAC ÷ CPI</strong> (assume future efficiency matches past). <strong>ETC = EAC − AC</strong> is how much more you expect to spend from now to finish. <strong>VAC = BAC − EAC</strong> (variance at completion) is the projected overrun or underrun at the end. These formulas are pedagogical defaults; real programs blend multiple EAC methods.`
 	},
 	{
+		id: 'standards',
+		title: 'Standards alignment — EIA-748, PMI, and PDUs',
+		body: `This training uses teaching language consistent with <strong>EIA-748 (ANSI-748)</strong> earned value management system intent—the 32 guideline areas cover organization, planning, scheduling, budgeting, accounting, analysis, and reporting. The <strong>PMI Practice Standard for Earned Value Management</strong> provides industry framing for the same core metrics (PV, EV, AC, variances, indices, forecasts).<br><br>Topics often under-emphasized in basic courses appear in the <strong>Read the metrics</strong> and <strong>Project scenarios</strong> paths: <strong>risk and opportunity management</strong>, <strong>baseline change control</strong>, and <strong>IPMR-style</strong> customer reporting ties.<br><br><strong>PDU / contact hours:</strong> This interactive practice tool supplements formal training; contact hours and PDUs depend on your certifying body (PMI, etc.). A completion certificate is available after the quiz for your records.`,
+		showResources: true
+	},
+	{
 		id: 'wrap',
 		title: 'How the pieces fit',
 		body: `At any status date you can read the story quickly: <strong>SPI</strong> and <strong>SV</strong> describe schedule performance in value terms; <strong>CPI</strong> and <strong>CV</strong> describe cost efficiency; <strong>EAC / VAC</strong> extend those trends toward the finish. Next is a short quiz—no trick questions, just checks that the vocabulary sticks.<br><br>After the quiz, try <strong>Read the metrics</strong> for twelve short cases (including “what if the manager says X?”), then the <strong>Project scenarios</strong> path for hands-on practice.`,
