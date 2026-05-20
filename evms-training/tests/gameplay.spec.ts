@@ -1,12 +1,16 @@
-import { test, expect } from '@playwright/test';
-import { evms101LessonCount } from '../src/lib/threads/evms101Content.js';
+import { test, expect, type Page } from '@playwright/test';
+import { evms101LessonCount } from '../lib/threads/evms101Content';
 
-async function ensureAppLoaded(page) {
-	await page.goto('/');
-	await expect(page.getByRole('heading', { level: 1 })).toBeVisible({ timeout: 15000 });
+function appRoot(page: Page) {
+	return page.locator('#evms-interactive-root');
 }
 
-async function openProjectScenarios(page) {
+async function ensureAppLoaded(page: Page) {
+	await expect(appRoot(page)).toBeVisible({ timeout: 20000 });
+	await expect(appRoot(page).getByRole('heading', { level: 1 })).toBeVisible({ timeout: 15000 });
+}
+
+async function openProjectScenarios(page: Page) {
 	await page.getByRole('button', { name: /Learning path: Project scenarios/i }).click();
 	await expect(page.getByRole('heading', { level: 2 })).toContainText('Project scenarios');
 }
@@ -21,7 +25,7 @@ test.describe('EVMS Training - Gameplay', () => {
 
 	test('home page displays header and learning paths', async ({ page }) => {
 		await expect(page.getByRole('heading', { level: 1 })).toContainText('EVMS Training');
-		await expect(page.getByText('Earned Value Management')).toBeVisible();
+		await expect(appRoot(page).getByText('Earned Value Management — Learn by doing')).toBeVisible();
 
 		await expect(page.getByRole('heading', { level: 2 })).toContainText('Choose a learning path');
 		await expect(page.getByRole('button', { name: /Learning path: EVMS 101/i })).toBeVisible();
@@ -40,7 +44,6 @@ test.describe('EVMS Training - Gameplay', () => {
 		await expect(firstCard).toBeVisible();
 		await expect(firstCard).toBeEnabled();
 
-		// Should NOT show Locked badge on first card
 		await expect(firstCard.getByText('Locked')).not.toBeVisible();
 	});
 
@@ -55,14 +58,11 @@ test.describe('EVMS Training - Gameplay', () => {
 		await openProjectScenarios(page);
 		await page.getByRole('button', { name: /Scenario: Building a Fence/i }).click();
 
-		// Should show scenario title in play header
 		await expect(page.getByRole('heading', { level: 2 })).toContainText('Building a Fence');
 		await expect(page.getByText(/Turn 1 of 5/)).toBeVisible();
 
-		// Back button
 		await expect(page.getByRole('button', { name: /Back to scenarios/i })).toBeVisible();
 
-		// EVMS Metrics sidebar
 		await expect(page.getByRole('heading', { name: /EVMS Metrics/i })).toBeVisible();
 	});
 
@@ -70,10 +70,8 @@ test.describe('EVMS Training - Gameplay', () => {
 		await openProjectScenarios(page);
 		await page.getByRole('button', { name: /Scenario: Building a Fence/i }).click();
 
-		// Narrative text from first turn
 		await expect(page.getByText(/Day 1: You're building a 100-foot wooden fence/)).toBeVisible();
 
-		// Two choice buttons
 		const choices = page.getByRole('button', { name: /Set posts as planned|Rush through post setting/i });
 		await expect(choices.first()).toBeVisible();
 		await expect(page.getByRole('button', { name: /Set posts as planned/i })).toBeVisible();
@@ -91,7 +89,7 @@ test.describe('EVMS Training - Gameplay', () => {
 		await expect(page.getByText(/Turn 1 of 5/)).toBeVisible();
 		await expect(page.getByText(/Day 2:/)).not.toBeVisible();
 
-		await page.getByRole('button', { name: /Continue to next decision|Next/i }).click();
+		await page.getByRole('button', { name: 'Continue to next decision' }).click();
 
 		await expect(page.getByText(/Turn 2 of 5/)).toBeVisible();
 		await expect(page.getByText(/Day 2:/)).toBeVisible();
@@ -101,13 +99,10 @@ test.describe('EVMS Training - Gameplay', () => {
 		await openProjectScenarios(page);
 		await page.getByRole('button', { name: /Scenario: Building a Fence/i }).click();
 
-		// Initially metrics may show $0 or values after first render
 		await expect(page.getByText('EVMS Metrics')).toBeVisible();
 
-		// Make a choice (metrics update immediately)
 		await page.getByRole('button', { name: /Set posts as planned/i }).click();
 
-		// Metrics should show currency values (PV, EV, AC)
 		await expect(page.locator('.metrics-grid').getByText(/\$[\d,]+/).first()).toBeVisible();
 	});
 
@@ -120,14 +115,13 @@ test.describe('EVMS Training - Gameplay', () => {
 		await page.getByRole('button', { name: /Back to scenarios/i }).click();
 
 		await expect(page.getByRole('heading', { level: 2 })).toContainText('Project scenarios');
-		await expect(page.getByText(/Building a Fence/)).toBeVisible();
+		await expect(page.getByRole('button', { name: /Scenario: Building a Fence/i })).toBeVisible();
 	});
 
 	test('completing scenario 1 shows completion screen', async ({ page }) => {
 		await openProjectScenarios(page);
 		await page.getByRole('button', { name: /Scenario: Building a Fence/i }).click();
 
-		// Complete all 5 turns (choice then Next each turn)
 		for (let i = 0; i < 5; i++) {
 			const choiceBtn = page
 				.getByRole('button', {
@@ -135,10 +129,9 @@ test.describe('EVMS Training - Gameplay', () => {
 				})
 				.first();
 			await choiceBtn.click();
-			await page.getByRole('button', { name: /Continue to next decision|Next/i }).click();
+			await page.getByRole('button', { name: 'Continue to next decision' }).click();
 		}
 
-		// Should show scenario complete
 		await expect(page.getByText('Scenario Complete!')).toBeVisible();
 		await expect(page.getByText(/You've finished/)).toBeVisible();
 		await expect(page.getByRole('heading', { name: /How you did/i })).toBeVisible();
@@ -151,20 +144,16 @@ test.describe('EVMS Training - Gameplay', () => {
 		await openProjectScenarios(page);
 		await page.getByRole('button', { name: /Scenario: Building a Fence/i }).click();
 
-		// Complete scenario 1 - 5 turns (choice + Next each)
 		for (let i = 0; i < 5; i++) {
 			await page.locator('.choice-btn').first().click();
-			await page.getByRole('button', { name: /Continue to next decision|Next/i }).click();
+			await page.getByRole('button', { name: 'Continue to next decision' }).click();
 			await page.waitForTimeout(300);
 		}
 
-		// Return to list
 		await page.getByRole('button', { name: /Return to Scenarios/i }).click();
 
-		// Progress should show 1/10
 		await expect(page.getByText(/1\/10 scenarios/)).toBeVisible();
 
-		// Kitchen Renovation should now be unlocked
 		const kitchenCard = page.getByRole('button', { name: /Scenario: Kitchen Renovation/i });
 		await expect(kitchenCard).toBeEnabled();
 	});
@@ -174,12 +163,11 @@ test.describe('EVMS Training - Gameplay', () => {
 		await page.getByRole('button', { name: /Scenario: Building a Fence/i }).click();
 		for (let i = 0; i < 5; i++) {
 			await page.locator('.choice-btn').first().click();
-			await page.getByRole('button', { name: /Continue to next decision|Next/i }).click();
+			await page.getByRole('button', { name: 'Continue to next decision' }).click();
 			await page.waitForTimeout(200);
 		}
 		await page.getByRole('button', { name: /Return to Scenarios/i }).click();
 
-		// Start scenario 2
 		await page.getByRole('button', { name: /Scenario: Kitchen Renovation/i }).click();
 
 		await expect(page.getByRole('heading', { level: 2 })).toContainText('Kitchen Renovation');
@@ -191,7 +179,7 @@ test.describe('EVMS Training - Gameplay', () => {
 		await expect(page.getByRole('heading', { level: 2 })).toContainText('EVMS 101');
 		await expect(page.getByText(/Lesson 1 of/)).toBeVisible();
 		for (let i = 0; i < evms101LessonCount - 1; i++) {
-			await page.getByRole('button', { name: 'Next' }).click();
+			await appRoot(page).getByRole('button', { name: 'Next', exact: true }).click();
 		}
 		await page.getByRole('button', { name: /Start quiz/i }).click();
 		await expect(page.getByText(/Quiz question 1 of/)).toBeVisible();

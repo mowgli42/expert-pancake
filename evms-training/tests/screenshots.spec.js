@@ -2,7 +2,7 @@
  * Capture gameplay screenshots for README
  * Run: npx playwright test tests/screenshots.spec.js --project=chromium
  */
-import { test } from '@playwright/test';
+import { test, expect } from '@playwright/test';
 import { existsSync, mkdirSync } from 'fs';
 import { dirname } from 'path';
 import { fileURLToPath } from 'url';
@@ -23,7 +23,8 @@ test.describe('Screenshot capture', () => {
 		await page.goto('/');
 		await page.evaluate(() => localStorage.clear());
 		await page.reload();
-		await page.waitForSelector('h1', { timeout: 15000 });
+		await page.locator('#evms-interactive-root').waitFor({ state: 'visible', timeout: 20000 });
+		await page.locator('#evms-interactive-root').getByRole('heading', { level: 1 }).waitFor({ state: 'visible', timeout: 20000 });
 
 		// 1. Learning paths, then project scenario list
 		await page.screenshot({
@@ -32,7 +33,7 @@ test.describe('Screenshot capture', () => {
 		});
 
 		await page.getByRole('button', { name: /Learning path: Project scenarios/i }).click();
-		await page.waitForSelector('text=Project scenarios', { timeout: 5000 });
+		await expect(page.getByRole('heading', { level: 2, name: 'Project scenarios' })).toBeVisible({ timeout: 8000 });
 
 		// 2. Click first scenario, show first turn
 		await page.getByRole('button', { name: /Scenario: Building a Fence/i }).click();
@@ -50,10 +51,10 @@ test.describe('Screenshot capture', () => {
 			fullPage: true
 		});
 
-		await page.getByRole('button', { name: /Continue to next decision|Next/i }).click();
+		await page.getByRole('button', { name: 'Continue to next decision' }).click();
 		for (let i = 0; i < 4; i++) {
 			await page.locator('.choice-btn').first().click();
-			await page.getByRole('button', { name: /Continue to next decision|Next/i }).click();
+			await page.getByRole('button', { name: 'Continue to next decision' }).click();
 			await page.waitForTimeout(300);
 		}
 		await page.screenshot({
