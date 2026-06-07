@@ -1,0 +1,7 @@
+{
+  "database": "dolt",
+  "backend": "dolt",
+  "dolt_mode": "embedded",
+  "dolt_database": "expert_pancake",
+  "project_id": "ad9f884a-764d-46ca-ba62-6b507350e94a"
+}
